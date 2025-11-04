@@ -1,0 +1,17 @@
+---
+title: Database
+icon: Database
+description: Shared database package guide.
+---
+
+**Location**: `packages/database`
+
+## Purpose
+
+This package is the single source of truth for all database-related concerns. It contains:
+
+*   The Drizzle ORM client.
+*   The complete database schema (both auto-generated and manual).
+*   Database migration files and the Drizzle Kit configuration.
+
+Any application that needs to communicate with the database will use this package as a dependency.

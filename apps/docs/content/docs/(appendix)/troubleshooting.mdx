@@ -1,0 +1,34 @@
+---
+title: Troubleshooting
+icon: FileQuestionMark
+description: Common setup and runtime issues solutions.
+---
+
+## Overview
+
+This guide covers common issues you may encounter while setting up or running the project.
+
+### Invalid Environment Variables
+
+*   **Error**: `Invalid environment variables` on startup.
+*   **Solution**: Make sure you have a `.env` file in each requiring project, and that all required 
+variables are set.
+See [Quick Start](/docs/installation) for more information.
+
+### Database Connection Failure
+
+*   **Error**: `Cannot connect to database` or `ECONNREFUSED`.
+*   **Solution**: Make sure your PostgreSQL Docker container is running (`docker ps`). If not, start it 
+with `docker start auth-postgres`.
+
+### Port Conflicts
+
+*   **Error**: `Port 3001 already in use`.
+*   **Solution**: Another process is using the required port. Find and stop it (`lsof -i :3001`), or 
+change the `PORT` in the appropriate `.env` file.
+
+### Migration Errors
+
+*   **Error**: `Migration failed` or `relation already exists`.
+*   **Solution**: For development, the easiest fix is often to reset the database by dropping and 
+recreating it in Docker, then re-running `pnpm db:migrate`.

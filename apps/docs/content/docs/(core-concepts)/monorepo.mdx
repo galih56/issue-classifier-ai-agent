@@ -1,0 +1,74 @@
+---
+title: Monorepo
+icon: GitFork
+description: Monorepo structure and rationale.
+---
+
+## Overview
+
+This project is structured as a [monorepo](https://monorepo.tools/), which means it houses multiple, 
+distinct projects (applications and libraries) within a single Git repository. This approach has several 
+key advantages for a project of this scale.
+
+## Why a Monorepo?
+
+*   **Code Sharing**: Seamlessly share code (like the `@repo/database` package) between applications 
+without publishing to a private registry.
+*   **Atomic Commits**: Changes to multiple parts of the system (e.g., updating a shared package and the 
+applications that use it) can be made in a single, atomic commit.
+*   **Simplified Dependency Management**: A single `pnpm-lock.yaml` file at the root manages 
+dependencies for the entire project, ensuring consistency.
+*   **Unified Tooling**: Run commands like `lint`, `build`, and `test` across the entire project from a 
+single place.
+
+## The `apps` vs. `packages` Philosophy
+
+The monorepo is organized into two main directories:
+
+*   `apps/`: Contains the deployable applications. These are the user-facing parts of the system, like 
+the `auth` server, the `api` server, and this documentation site.
+*   `packages/`: Contains shared libraries and configurations. These are the building blocks that the 
+applications depend on, such as the database client (`@repo/database`) and shared configurations 
+(`@repo/biome-config`).
+
+<Mermaid chart={`graph TD
+    subgraph "apps/"
+        Auth[Auth Server]
+        API[API Server]
+        MCP[MCP Server]
+    end
+
+    subgraph "packages/"
+        DB["@repo/database"]
+    end
+
+    Auth --> DB
+    API --> DB
+    MCP --> DB
+`}/>
+
+## Tooling
+
+Two key tools power this monorepo:
+
+### 1. pnpm Workspaces
+
+[pnpm](https://pnpm.io/) is a fast and disk-space-efficient package manager. Its workspace feature is 
+what allows us to manage multiple projects within this single repository. It hoists all dependencies to 
+the root `node_modules` directory and uses symlinks to make the shared packages available to the 
+applications that need them.
+
+### 2. Turborepo
+
+[Turborepo](https://turborepo.org/) is a high-performance build system for JavaScript and TypeScript 
+codebases. It sits on top of `pnpm` workspaces and intelligently orchestrates how tasks (like `build` 
+and `lint`) are executed.
+
+*   **Caching**: Turborepo caches the output of tasks. If you run `pnpm build` and haven't changed any 
+files in a specific package, Turborepo will restore the output from its cache instead of re-building it, 
+saving significant time.
+*   **Task Orchestration**: It understands the dependencies between your packages and runs tasks in the 
+correct order. For example, it will build `@repo/database` before it builds an application that depends 
+on it.
+
+This is configured in the `turbo.json` file at the root of the project.

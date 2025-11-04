@@ -1,0 +1,89 @@
+---
+title: Auth Server
+icon: Key
+description: Dedicated Better Auth server guide.
+---
+
+**Location**: `apps/auth`
+
+## Purpose
+
+This is the dedicated **Authentication Server** for the project. Built with Hono and powered by [Better 
+Auth](https://www.better-auth.com/), its sole responsibility is to handle user authentication (sign-up, 
+sign-in, sign-out) and issue tokens.
+It acts as the central authority for user identity.
+
+## The Hybrid Token Flow
+
+The Auth Server employs a hybrid approach to support both traditional web applications and modern 
+clients (like mobile apps or SPAs).
+
+*   **Web Clients**: Use secure, `HttpOnly` session cookies for authenticating to the primary 
+application.
+*   **API/Mobile Clients**: Use short-lived JWT (JSON Web Token) Bearer Tokens for all API communication.
+
+This flow is illustrated below:
+
+<Mermaid chart={`graph TD
+    subgraph "Clients"
+        Client[Client Applications<br>Web & Mobile]
+    end
+
+    subgraph "Authentication"
+        Auth[Auth Server]
+    end
+
+    subgraph "Backend Services"
+        Resources[Resource Servers<br>API & MCP]
+    end
+
+    Client -- "1. Authenticate & get<br><b>Long-Lived Session Token</b>" --> Auth
+    Client -- "2. Exchange <b>Session</b> for<br><b>Short-Lived Access Token (JWT)</b>" --> Auth
+    Client -- "3. Access protected resources with<br><b>Access Token (JWT)</b>" --> Resources
+    Resources -.->|4. Verify <b>JWT</b> using<br><b>JWKS</b>| Auth
+`}/>
+
+**Flow Description:**
+
+1.  **Authentication**: A user logs in against the Auth Server. A web client gets a session cookie, 
+while a mobile client gets a session token.
+2.  **Token Issuance**: When a client needs to access a resource server, it makes an authenticated 
+request to the Auth Server to get a short-lived JWT.
+3.  **API Access**: The client includes this JWT in the `Authorization` header for all requests to the 
+resource servers.
+4.  **Verification**: The resource servers verify the JWT's signature by fetching public keys from the 
+Auth Server's JWKS endpoint (`/api/v1/auth/jwks`).
+
+## Security Considerations
+
+This architecture is designed with security in mind. Here are the key concepts and trade-offs:
+
+*   **Stolen JWTs**: Because JWTs are stateless, a stolen token can be used by an attacker until it 
+expires.
+**Our primary defense is keeping token lifetimes short (15 minutes)**. This limits the window of 
+opportunity for an attacker.
+*   **JWKS Caching**: Resource servers **must** cache the JWKS response from the Auth Server. Fetching 
+the keys on every request would create a massive performance bottleneck.
+Standard libraries like `jose` handle this caching automatically.
+*   **Concurrent Requests**: If multiple API requests are made when a JWT has just expired, it can lead 
+to a race condition where multiple new tokens are requested.
+Advanced client-side interceptors can solve this by queuing requests while a single new token is fetched.
+
+## Customization
+
+For more advanced use cases or to customize the authentication behavior, refer to the [Better Auth 
+documentation](https://www.better-auth.com/docs).
+You can extend the Auth Server's functionality by modifying the Better Auth configuration in 
+`apps/auth/src/auth.ts`.
+
+## Environment Variables
+
+This server's environment variables are validated by `src/env.ts`. Refer to `apps/auth/.env.example` for 
+a template.
+
+*   `PORT`: The port the server will run on (e.g., `3001`).
+*   `NODE_ENV`: The runtime environment (`development` or `production`).
+*   `DATABASE_URL`: The full connection string for the PostgreSQL database.
+*   `BETTER_AUTH_URL`: The public base URL of this authentication server.
+*   `BETTER_AUTH_SECRET`: A secret key (at least 32 characters long) used for signing sessions and 
+tokens.

@@ -1,0 +1,22 @@
+{
+  "title": "Starter Kit",
+  "description": "A full-stack monorepo for building modern web applications",
+  "icon": "Rocket",
+  "root": true,
+  "pages": [
+    "---Introduction---",
+    "index",
+    "installation",
+    "command-reference",
+    "---Core Concepts---",
+    "...(core-concepts)",
+    "---Architecture---",
+    "...(architecture)",
+    "---Reference Guides---",
+    "...(guides)",
+    "---Deployment---",
+    "...(deployment)",
+    "---Appendix---",
+    "...(appendix)"
+  ]
+}

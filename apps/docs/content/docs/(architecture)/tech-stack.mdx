@@ -1,0 +1,118 @@
+---
+title: Tech Stack
+icon: Layers
+description: Tech stack with reasoning.
+---
+
+## Overview
+
+This section outlines the key technologies used in this starter kit, along with the reasoning behind 
+each choice. The tech stack is designed to prioritize type safety, developer experience, performance, 
+and maintainability.
+
+## Authentication
+
+### Better Auth
+
+**Why [Better Auth](https://www.better-auth.com/)?**
+- Free, self-hostable and open-source
+- Modern, secure authentication library with excellent TypeScript support
+- Supports multiple authentication methods (email/password, OAuth, etc.)
+- Extensible plugin system for additional features
+
+**Usage**: Authentication and session management.
+
+<Callout type="tip">
+**Alternatives**: Due to the [decoupled architecture](/docs/authentication#architecture-decoupled-auth-server), 
+the Auth Server can be replaced with managed auth services like Clerk, Auth0, or Firebase Auth, which 
+provide JWKS endpoints for JWT validation.
+
+See [Authentication](/docs/authentication#replacing-the-auth-server-with-managed-services) for details on 
+replacing the Auth Server.
+</Callout>
+
+## Backend Frameworks
+
+### Hono
+
+**Why [Hono](https://hono.dev/)?**
+- Lightweight and high-performance web framework
+- Excellent TypeScript support with full type inference
+- Built-in middleware system for authentication, logging, etc.
+- Minimalist API that's easy to learn and extend
+
+**Usage**: Framework for the Auth and API servers.
+
+<Callout type="info">
+**Framework Flexibility**: Due to the [decoupled architecture](/docs/authentication#architecture-decoupled-auth-server), 
+resource servers can use any framework (e.g., NestJS, FastAPI, Gin, Rails), as long as they validate JWTs via JWKS. 
+Note that non-JS frameworks may not work with Turborepo and Drizzle ORM is JS-based, so other languages connect 
+directly to PostgreSQL using their own database libraries.
+</Callout>
+
+### FastMCP
+
+**Why [FastMCP](https://fastmcp.com/)?**
+- Specialized framework for building MCP (Model Context Protocol) servers
+- Optimized for AI agent integration
+- Lightweight and focused on RPC-style tool exposure
+- Demonstrates integration of non-Hono servers into the architecture
+
+**Usage**: Framework for the MCP server.
+
+## Database & Data
+
+### PostgreSQL
+
+**Why [PostgreSQL](https://postgresql.org/)?**
+- Robust, enterprise-grade relational database
+- Excellent JSON support for flexible data modeling
+- Strong ACID compliance and transactional integrity
+- Mature ecosystem with excellent tooling and community support
+
+**Usage**: Primary database for all data persistence.
+
+### Drizzle ORM
+
+**Why [Drizzle](https://drizzle.team/)?**
+- Better Auth integration for automatic schema generation
+- Generates TypeScript types from database schema
+- Lightweight with zero runtime overhead
+- Excellent migration system with Drizzle Kit
+
+**Usage**: Database ORM and query builder.
+
+## API Documentation
+
+### Scalar
+
+**Why [Scalar](https://scalar.com/)?**
+- Beautiful, interactive API documentation
+- Auto-generates from OpenAPI specs
+- Built-in API testing capabilities
+- Modern UI that's easy to navigate and understand
+
+**Usage**: API documentation interface.
+
+## Development Tools
+
+### Docker
+
+**Why [Docker](https://docker.com/)?**
+- Consistent development environments across machines
+- Easy database setup and teardown
+- Containerized development workflow
+- Simplifies onboarding for new developers
+
+**Usage**: Running PostgreSQL database in development. Will be used as one of the deployment options for 
+the whole stack.
+
+### Drizzle Studio
+
+**Why [Drizzle Studio](https://drizzle.studio/)?**
+- Visual database interface for development
+- Query execution and schema exploration
+- Real-time database introspection
+- Integrated with Drizzle ORM for seamless workflow
+
+**Usage**: Database GUI for development and debugging.

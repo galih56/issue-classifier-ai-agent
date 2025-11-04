@@ -1,0 +1,55 @@
+---
+title: Code & Commit Quality
+icon: ShieldCheck
+description: Tools and workflows for code quality and consistency.
+---
+
+## Overview
+
+This project enforces a high standard of code and commit quality through a series of automated tools and 
+workflows. This ensures consistency, readability, and a stable codebase.
+
+## Static Analysis
+
+Static analysis tools check your code for errors and style issues without running it.
+
+*   **Biome**: Used for both linting (finding potential bugs) and formatting (enforcing a consistent 
+code style). The configuration is centralized in the `@repo/biome-config` package, ensuring all code in 
+the monorepo looks and feels the same.
+*   **TypeScript**: Shared `tsconfig.json` files in the `@repo/typescript-config` package provide a 
+strict, consistent set of compiler rules for all projects.
+
+## Automated Quality Gates
+
+To ensure that no low-quality code enters the main branch, we use automated checks that run before every 
+commit.
+
+### The Pre-commit Hook
+
+This is powered by [husky](https://typicode.github.io/husky/), a tool that makes it easy to manage Git 
+hooks. The configuration in `.husky/pre-commit` specifies a set of commands that must pass before a 
+commit is allowed:
+
+1.  **`pnpm lint-staged`**: This command runs `biome check --write` on all staged files. It 
+automatically formats your code and checks for linting errors.
+2.  **`pnpm typecheck`**: This runs the TypeScript compiler across the entire project to ensure there 
+are no type errors.
+
+If either of these steps fails, the commit is aborted, giving you a chance to fix the issues.
+
+### Commit Message Hygiene
+
+We use [commitlint](https://commitlint.js.org/) to enforce the [Conventional 
+Commits](https://www.conventionalcommits.org/) specification.
+This means your commit messages must follow a standard format, like:
+
+```
+feat: add user profile page
+
+fix(auth): correct validation logic for email sign-up
+
+chore: update dependencies
+```
+
+This practice creates a clean, readable, and easily searchable Git history, and it enables automated 
+tools to generate changelogs.

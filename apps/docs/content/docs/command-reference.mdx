@@ -1,0 +1,58 @@
+---
+title: Command Reference
+icon: Wrench
+description: Common CLI commands for project development and management.
+---
+
+## Overview
+
+Here is a reference for the most common commands used in this project, all run from the project root.
+
+## Development
+
+```bash
+# Start all development servers + Drizzle Studio
+pnpm dev
+
+# Start only the application development servers
+pnpm dev:app
+```
+
+## Code Quality
+
+```bash
+# Run linting across all packages
+pnpm lint
+
+# Auto-fix linting and formatting issues
+pnpm lint:fix
+
+# Run TypeScript type checking across all packages
+pnpm typecheck
+```
+
+## Database
+
+```bash
+# Generate auth schema from Better Auth config
+pnpm db:schema
+
+# Generate a new SQL migration from schema changes
+pnpm db:generate
+
+# Apply all pending migrations to the database
+pnpm db:migrate
+
+# Open the Drizzle Studio GUI in your browser
+pnpm db:studio
+
+# Run the complete setup: schema -> generate -> migrate
+pnpm db:setup
+```
+
+## Build
+
+```bash
+# Build all apps and packages for production
+pnpm build
+```

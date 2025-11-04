@@ -1,0 +1,97 @@
+---
+title: Quick Start
+icon: Rocket
+description: Setup and run guide for the starter kit.
+---
+
+## Overview
+
+This guide will walk you through the process of setting up the starter kit on your local machine.
+
+## Prerequisites
+
+*   [Node.js](https://nodejs.org/en/) (v18 or higher)
+*   [pnpm](https://pnpm.io/installation) (v9.0.0 or higher)
+*   [Docker](https://www.docker.com/get-started) (for running the PostgreSQL database)
+
+## 1. Installation
+
+First, clone the repository and install the dependencies using `pnpm`:
+
+```bash
+git clone https://github.com/yurisasc/starter-kit.git
+cd starter-kit
+pnpm install
+```
+
+## 2. Environment Setup
+
+The project uses `.env` files for managing environment variables. Instead of manually creating each 
+file, you can use our automated setup script:
+
+```bash
+pnpm setup:env
+```
+
+This script will:
+- Copy all `.env.example` files to their respective `.env` files
+- Generate a secure secret for the auth server automatically
+- Skip any files that already exist to avoid overwriting your customizations
+
+**Manual Setup (Alternative)**
+
+If you prefer to set up manually, you can copy the example files:
+
+```bash
+# Copy example files
+cp apps/auth/.env.example apps/auth/.env
+cp apps/api/.env.example apps/api/.env
+cp apps/mcp/.env.example apps/mcp/.env
+cp packages/database/.env.example packages/database/.env
+
+# Generate auth secret
+openssl rand -base64 32
+```
+
+Then replace `your-secret-key-minimum-32-characters-long-change-this-in-production` in `apps/auth/.env` 
+with the generated secret.
+
+## 3. Start the Database
+
+The project uses a PostgreSQL database, which can be easily started with Docker:
+
+```bash
+docker run -d \
+  --name auth-postgres \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=auth_db \
+  -p 5432:5432 \
+  postgres:18
+```
+
+## 4. Run Database Setup
+
+With the database running, you can now set up the schema and run the initial migrations:
+
+```bash
+pnpm db:setup
+```
+
+This command will:
+1.  Generate the Drizzle schema from the `better-auth` configuration.
+2.  Create the SQL migration files.
+3.  Apply the migrations to your database.
+
+## 5. Start the Development Servers
+
+Finally, start all the development servers with a single command:
+
+```bash
+pnpm dev
+```
+
+This will start:
+*   The **Auth server** at `http://localhost:3001`
+*   The **API server** at `http://localhost:3010`
+*   The **Documentation site** at `http://localhost:3000`
+*   **Drizzle Studio** at `https://local.drizzle.studio`

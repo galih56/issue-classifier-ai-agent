@@ -1,0 +1,17 @@
+{
+  "root": false,
+  "extends": ["@repo/biome-config"],
+  "files": {
+    "includes": [
+      "**",
+      "!dist",
+      "!**/dist",
+      "!node_modules",
+      "!**/node_modules",
+      "!.next",
+      "!**/.next",
+      "!.source",
+      "!**/.source"
+    ]
+  }
+}

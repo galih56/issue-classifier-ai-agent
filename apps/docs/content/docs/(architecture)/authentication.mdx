@@ -1,0 +1,120 @@
+---
+title: Authentication
+icon: Key
+description: Decoupled authentication architecture overview.
+---
+
+## Overview
+
+This starter kit features a secure, scalable, and decoupled authentication architecture powered by 
+[Better Auth](https://www.better-auth.com/).
+This guide explains the overall design and the separation of concerns between the Auth Server and 
+Resource Servers.
+
+## Architecture: Decoupled Auth Server
+
+Instead of embedding authentication logic within the main API server, this project uses a dedicated, 
+standalone **Auth Server** (`apps/auth`).
+All other backend servers (like `apps/api` and `apps/mcp`) are considered **Resource Servers**.
+
+This separation provides several advantages:
+
+*   **Single Responsibility**: The Auth Server does one thing and does it well: authenticating users and 
+issuing tokens.
+*   **Scalability**: The Auth Server can be scaled independently of the resource servers.
+*   **Security**: Resource servers don't need access to user credentials or session secrets. They only 
+need to know how to validate a token.
+
+### Auth Server Responsibilities
+
+The Auth Server is the central authority for user identity and authentication. Its primary duties 
+include:
+
+- Handling user registration, login, logout, and password management.
+- Managing user sessions and issuing authentication tokens.
+- Providing public keys (via JWKS endpoint) for token verification.
+- Storing user data in a secure database.
+
+The Auth Server operates independently and does not contain any domain-specific business logic.
+
+### Resource Server Responsibilities
+
+Resource Servers focus solely on their domain functionality, such as API endpoints or MCP services.
+They delegate all authentication concerns to the Auth Server:
+
+- Receiving and validating JWT tokens from clients.
+- Fetching and caching public keys from the Auth Server's JWKS endpoint for token verification.
+- Denying access to unauthorized requests.
+
+This allows Resource Servers to remain lightweight and focused on their core purposes.
+
+### Server Interaction
+
+Communication between the Auth Server and Resource Servers is stateless and secure:
+
+- Clients authenticate with the Auth Server to obtain JWTs.
+- Clients include JWTs in requests to Resource Servers.
+- Resource Servers verify JWT signatures using keys from the Auth Server.
+
+This decoupled design enables easy scaling, independent deployments, and enhanced security by isolating 
+authentication logic.
+
+<Mermaid chart={`graph TD
+    subgraph "Auth Server (apps/auth)"
+        Auth[Auth Server]
+    end
+
+    subgraph "Resource Servers"
+        API[API Server]
+        MCP[MCP Server]
+    end
+
+    %% Define the notes as regular nodes
+    NoteAuth("<b>Auth Server Note</b><br/>Handles authentication and token issuance:<br/>- User registration/login<br/>- Session management<br/>- JWT creation<br/>- JWKS endpoint")
+    NoteAPI("<b>API Server Note</b><br/>Focuses on business logic and validates JWTs")
+    NoteMCP("<b>MCP Server Note</b><br/>Provides MCP services and validates JWTs")
+
+    Clients[Clients<br/>Web/Mobile Apps] -- "1. Authenticate" --> Auth
+    Auth -- "2. Receive JWT" --> Clients
+    Clients -- "3. Access Resource with JWT" --> API
+    Clients -- "4. Access Resource with JWT" --> MCP
+    
+    API -.->|Verify JWT | Auth
+    MCP -.->|Verify JWT| Auth
+
+    %% Position the notes with invisible links
+    Auth --- NoteAuth
+    API --- NoteAPI
+    MCP --- NoteMCP
+
+    %% Make the positioning links invisible
+    linkStyle 6 stroke-width:0px
+    linkStyle 7 stroke-width:0px
+    linkStyle 8 stroke-width:0px
+`}/>
+
+## Replacing the Auth Server with Managed Services
+
+Due to the decoupled architecture, you can easily replace the self-hosted Auth Server with a managed authentication service like Clerk, Auth0, or Firebase Auth.
+
+### Steps to Replace
+
+1. Choose a managed auth provider that supports JWT issuance and provides a JWKS endpoint.
+2. Configure your Resource Servers to use the managed provider's JWKS endpoint instead of the local Auth Server's.
+3. Update client applications to authenticate directly with the managed service.
+4. Optionally, remove the `apps/auth` directory from your project.
+
+### Configuration Changes
+
+For each Resource Server (e.g., `apps/api`, `apps/mcp`):
+
+- Update the JWKS URL in your JWT validation middleware to point to the managed service's JWKS endpoint.
+- Ensure the JWT claims match what your application expects.
+
+### Example Providers
+
+- **Clerk**: JWKS endpoint available at `https://your-domain.clerk.accounts.dev/.well-known/jwks.json`
+- **Auth0**: JWKS endpoint at `https://your-domain.auth0.com/.well-known/jwks.json`
+- **Firebase**: Use Firebase Admin SDK for verification, or extract JWKS from their endpoints.
+
+This allows you to leverage managed services while keeping the Resource Servers unchanged.

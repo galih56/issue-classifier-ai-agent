@@ -1,0 +1,102 @@
+---
+title: API Server
+icon: Server
+description: Main Hono resource server guide.
+---
+
+**Location**: `apps/api`
+
+## Purpose
+
+This application is the primary **Resource Server** for the starter kit. It is a lightweight 
+and high-performance Hono server responsible for serving business-logic API endpoints.
+It is designed to be stateless and relies on the `auth` server for user authentication.
+
+## Key Features
+
+*   **Lightweight & Fast**: Built on Hono, a minimal and high-performance web framework.
+*   **End-to-End Type Safety**: Leverages Zod for environment validation and route schemas.
+*   **Self-Documenting**: Automatically generates interactive API documentation using 
+`@hono/zod-openapi` and Scalar.
+*   **Decoupled from Auth**: Securely validates JWTs without having any direct access to user 
+credentials or session data.
+
+## Project Structure
+
+The server's code is organized logically within `apps/api/src/`:
+
+*   `index.ts`: The main server entry point. It initializes the Hono app, registers middleware, sets up 
+routes, and starts the server.
+*   `env.ts`: Uses `@t3-oss/env-core` and Zod to validate and type-define all environment variables at 
+startup.
+This prevents runtime errors caused by missing or invalid configuration.
+*   `docs/`: Contains all the logic for generating the OpenAPI specification and the Scalar UI.
+*   `lib/`: Home to shared utilities, including JWT validation middleware (`jwt.ts`) and standardized 
+error responses (`errors.ts`).
+*   `routes/`: Each file in this directory defines a set of related API routes, keeping the codebase 
+modular and easy to navigate.
+
+## Core Patterns
+
+### JWT Verification
+
+The `lib/jwt.ts` file contains the `jwtMiddleware`. This is a Hono middleware that:
+
+1.  Extracts the `Bearer` token from the `Authorization` header.
+2.  Uses the `jose` library to verify the token's signature against the public keys fetched from the 
+`auth` server's JWKS endpoint.
+3.  Checks the token's `issuer` and `audience` to ensure it was issued by the correct authority for the 
+correct purpose.
+4.  If valid, it attaches the token's payload to the request context (`c.set('jwtPayload', ...)`), 
+making it available to downstream route handlers.
+
+This middleware is then applied to any route that requires authentication.
+
+### Self-Documenting Routes
+
+Routes are defined using `@hono/zod-openapi`, which allows you to define the route's path, method, 
+input/output schemas, and documentation all in one place. For example, in `routes/time.ts`:
+
+```typescript
+const timeRoute = createRoute({
+  method: "get",
+  path: "/time",
+  summary: "Current server time (protected)",
+  security: [{ bearerAuth: [] }], // Marks this as a protected route
+  responses: {
+    200: {
+      description: "OK",
+      content: { "application/json": { schema: TimeResponseSchema } },
+    },
+  },
+});
+```
+
+This definition not only creates the route but also provides all the necessary information for 
+`scalar.ts` to generate the beautiful, interactive API documentation.
+
+## Environment Variables
+
+This server's environment variables are validated by `src/env.ts`. Refer to `apps/api/.env.example` for 
+a template.
+
+*   `PORT`: The port the server will run on (e.g., `3010`).
+*   `RESOURCE_API_BASE_PATH`: The base path for all API routes (e.g., `/api/v1/resource`).
+*   `JWKS_URL`: The full URL to the `auth` server's JWKS endpoint (e.g., 
+`http://localhost:3001/api/v1/auth/jwks`).
+*   `JWT_ISSUER`: The expected `iss` (issuer) claim in the JWT, which should be the base URL of the 
+`auth` server.
+*   `JWT_AUDIENCE`: The expected `aud` (audience) claim in the JWT, which should be the base URL of this 
+API server.
+*   `OPENAPI_SERVER_URLS`: A comma-separated list of base URLs for the OpenAPI documentation.
+
+## Future Evolution
+
+The structure of this server is designed for easy extension.
+
+*   **Adding New Routes**: Simply create a new file in the `routes/` directory, define your route 
+schemas with Zod, and register it in `index.ts`.
+*   **Scope-Based Authorization**: The `lib/jwt.ts` file already includes a `requireScope` middleware. 
+This is a starting point for a role-based access control (RBAC) system. By adding scopes (e.g., 
+`read:time`, `write:data`) to your JWTs in the `auth` server, you can use this middleware to protect 
+specific routes, ensuring that only users with the correct permissions can access them.

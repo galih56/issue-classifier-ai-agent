@@ -1,0 +1,39 @@
+---
+title: Future Project Structure
+icon: ToyBrick
+description: Potential extensions and architectural evolution.
+---
+
+## Overview
+
+This starter kit provides a solid foundation, but it is designed to be extended. Here are some ways the 
+project structure might evolve.
+
+## Adding a Web Frontend
+
+A common next step is to add a web application (e.g., a Next.js or Remix app) that consumes the `api` 
+server.
+
+*   **Location**: A new directory would be created at `apps/web`.
+*   **Authentication**: The web app would interact with the `auth` server to handle user sign-in and 
+session management.
+*   **API Consumption**: It would make authenticated requests to the `api` server by first requesting a 
+JWT from the `auth` server,
+as outlined in the authentication architecture.
+
+## Adding a Mobile App
+
+The architecture is already designed to support a mobile client.
+
+*   **Location**: A new directory could be created at `apps/mobile` for an Expo or React Native project.
+*   **Authentication**: The mobile app would use a token-based flow, storing session tokens securely and 
+requesting JWTs for API calls.
+
+## Adding More Shared Packages
+
+As the project grows, you might extract more shared logic into the `packages/` directory.
+
+*   **Example**: A `@repo/ui` package could be created to share React components between the `docs` site 
+and a new `web` application.
+*   **Example**: A `@repo/utils` package could house common utility functions used by multiple backend 
+services.

@@ -1,0 +1,69 @@
+---
+title: Managing Dependencies
+icon: Code
+description: Managing dependencies with pnpm workspaces.
+---
+
+## Overview
+
+This project uses [pnpm](https://pnpm.io/) and its [workspace](https://pnpm.io/workspaces) feature to 
+manage dependencies across the monorepo.
+This guide explains how to add, remove, and update packages.
+
+## Adding a Dependency
+
+To add a dependency to a specific application or package, use the `pnpm add` command with the `--filter` 
+flag.
+
+### Adding to an Application
+
+For example, to add `zod` to the `api` server:
+
+```bash
+pnpm add zod --filter @repo/api-server
+```
+
+### Adding to a Package
+
+To add a dev dependency like `@types/react` to the `@repo/database` package:
+
+```bash
+pnpm add @types/react -D --filter @repo/database
+```
+
+*   The `--filter` flag targets the workspace package by its `name` in its `package.json`.
+*   Use `-D` to specify a development dependency.
+
+## Adding a Workspace Package as a Dependency
+
+To make one package in the workspace a dependency of another
+(e.g., making `@repo/database` a dependency of `apps/api`), you can use the `workspace:*` protocol.
+
+In `apps/api/package.json`:
+
+```json
+"dependencies": {
+  "@repo/database": "workspace:*"
+}
+```
+
+Then, run `pnpm install` at the root of the project. `pnpm` will create the necessary symlinks.
+
+## Removing a Dependency
+
+To remove a dependency, use the `pnpm remove` command, again with the `--filter` flag:
+
+```bash
+pnpm remove zod --filter @repo/api-server
+```
+
+## Updating Dependencies
+
+You can update dependencies interactively across the entire monorepo by running:
+
+```bash
+pnpm update -i -r
+```
+
+*   `-i` stands for interactive.
+*   `-r` stands for recursive, applying the command to all packages in the workspace.
