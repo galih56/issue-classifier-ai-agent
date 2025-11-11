@@ -60,3 +60,11 @@ export function badRequest(
     400,
   );
 }
+
+export function internalError(c: Context, message: string, details?: any) {
+  return c.json({
+    code: "internal_error",
+    message,
+    details,
+  }, 500);
+}

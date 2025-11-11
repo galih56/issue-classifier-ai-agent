@@ -5,6 +5,7 @@ import { createOpenAPIApp } from "./docs/scalar";
 import { env } from "./env";
 import { registerPublicRoutes } from "./routes/public";
 import { registerTimeRoutes } from "./routes/time";
+import { registerIssueClassifierRoutes } from "./routes/issue-classification";
 
 const apiApp = createOpenAPIApp();
 registerLlmDocs(apiApp);
@@ -25,6 +26,8 @@ apiApp.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
 registerPublicRoutes(apiApp);
 registerTimeRoutes(apiApp);
 
+// After registerTimeRoutes(apiApp);
+registerIssueClassifierRoutes(apiApp);
 // 404 handler
 apiApp.notFound((c) => {
   return c.json({ code: "not_found", message: "Route not found" }, 404);
