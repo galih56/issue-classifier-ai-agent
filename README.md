@@ -1,257 +1,160 @@
 # AI Classification Service
 
-## Conceptual Overview
-This project provides a generalized service for AI-assisted classification.
-It is designed to support multiple use cases — such as issue categorization, salary structure suggestions, or any workflow that requires interpreting unstructured input and mapping it into structured categories.
+> A flexible, AI-powered classification service designed to interpret unstructured input and map it into structured categories for various business use cases.
 
-The goal of this repository is to build in the open and document the conceptual architecture, the flow, and the thinking behind the system.
+## 🎯 TL;DR
 
-1. Core Idea
-  The service receives an input text (e.g., user description, request, problem statement, employee profile) and classifies it into predefined categories based on curated domain knowledge.
+This service uses AI to automatically classify text inputs (issue reports, employee profiles, requests) into predefined categories with explanations and confidence scores. Built with a provider-agnostic architecture, it's designed to support multiple domains: IT support, HR workflows, salary structures, and more.
 
-  Examples of category sets:
-    Issue categories for IT operations
-    Salary structure tiers
-    HR policy classifications
-    Performance or KPI categories
+---
 
-  Each category can include:
-    Description
-    Criteria
-    Notes or contextual constraints
-    Severity or level (optional)
+## 📊 Current Status
 
-  The AI model uses this information to decide:
-    Which category best matches the input
-    Why it matches
-    How confident the classification is
+- ✅ Initial monorepo setup complete (based on [starter-kit](https://github.com/yurisasc/starter-kit))
+- ✅ OpenRouter API integration with Hono + LangChain
+- 🚧 Building classification prompt templates
+- ⏳ Category knowledge store design
+- ⏳ Response normalization layer
+- ⏳ Frontend UI for testing
 
-2. High-Level Flow
+---
 
-  Step 1 — Input Received
-    - The API receives a raw text input from any client:
-    - Web app
-    - Internal tool
-    - Script
-    - HR system
-    - Browser extension
-    - Command-line tool
+## 💡 Core Concept
 
-  Step 2 — Preparation of Domain Context
-    - Before classification, the system prepares structured context:
-    - List of categories
-    - Definitions & descriptions
-    - Criteria
-    - Constraints
-    - Use-case specific rules
-    - This gives the model a controlled environment so it produces consistent structured output.
+The service receives unstructured text and classifies it into predefined categories using curated domain knowledge. Instead of hardcoding business logic, we let AI interpret and map inputs while maintaining full transparency and auditability.
 
-  Step 3 — AI Classification Request
-    The system sends a single structured prompt to an AI provider.
-    This prompt includes:
-    - The input text
-    - The curated categories
-    - Instructions on how to analyze and compare
-    - The expected structured output format
+### Example Use Cases
 
-  Step 4 — Model Output
-    The model returns:
-    - Category name
-    - Reasoning/explanation
-    - Confidence score (model-generated probability-like judgment)
+- **IT Operations**: Categorize support tickets (Network, Hardware, Software, Security)
+- **HR Management**: Suggest salary structures based on employee profiles
+- **Performance Reviews**: Classify feedback into performance tiers
+- **Document Routing**: Auto-categorize incoming documents for proper workflow
 
-    This enables:
-      Transparent decisions
-      Auditable outputs
-      Higher trust from HR/operations teams
+### Quick Example
 
-  Step 5 — API Response to Client
-    The client receives a structured JSON object, ready to be displayed or stored.
+**Input Request:**
+```json
+{
+  "text": "My laptop won't connect to WiFi after the latest update",
+  "domain": "it-support"
+}
+```
 
+**Classification Response:**
+```json
+{
+  "category": "Network Connectivity",
+  "confidence": 0.89,
+  "explanation": "Issue involves WiFi connection problems following a system update. Likely driver or configuration related.",
+  "suggestedPriority": "medium",
+  "metadata": {
+    "matchedCriteria": ["wifi", "connectivity", "update"],
+    "modelVersion": "gpt-4-turbo",
+    "timestamp": "2024-11-19T10:30:00Z"
+  }
+}
+```
 
-3. Conceptual Architecture
-  This repository follows a modular architecture:
+---
 
-  1. Input Layer
-    Handles all incoming user inputs (text, forms, API requests).
+## 🏗️ Architecture Overview
 
-  2. Knowledge & Category Store
-    Contains:
-      The curated category sets
-      Descriptions
-      Criteria
-      Domain rules
+The system follows a modular, layered architecture:
 
-    Update tracking
-    This part acts like a mini “domain knowledge base”.
+### 1. Input Layer
+Accepts text from any source: web apps, APIs, internal tools, browser extensions, CLI tools.
 
-  3. AI Connector Layer
-    Responsible for:
-      Packing the prompt
-      Sending it to different AI providers
-      Handling model responses
-      Error management
-      This keeps the system provider-agnostic.
+### 2. Knowledge & Category Store
+Contains curated domain knowledge:
+- Category definitions and descriptions
+- Classification criteria
+- Domain-specific rules
+- Constraint definitions
 
-  4. Classification Core
-    Applies the logic for:
-      Preparing category context
-      Mapping input into categories
-      Enforcing output schema
-      Normalizing model responses
+This acts as a mini "domain knowledge base" that gives the AI model context.
 
-  5. Client Layer
-    Any UI, dashboard, or external integration that consumes the classification results.
+### 3. AI Connector Layer
+Provider-agnostic layer that:
+- Constructs structured prompts
+- Manages API calls to different AI providers
+- Handles responses and errors
+- Enables easy provider switching (OpenAI, Anthropic, OpenRouter, etc.)
 
-  4. Uses Beyond Issue Classification
-    This architecture is flexible enough to support multiple HR and business use cases:
-    Salary range suggestion
-    Employee leveling
-    Performance notes classification
-    Training recommendation categorization
-    Job description parser
-    KPI summary classification
-    HR document routing
-    Each use case simply swaps out the category set and adds relevant criteria.
+### 4. Classification Core
+Applies business logic:
+- Prepares category context from knowledge store
+- Maps inputs to appropriate categories
+- Enforces output schema validation
+- Normalizes model responses
 
-  5. Philosophy of the Project
-    Avoid over-engineering
-    Keep the system deterministic and inspectable
-    Use AI only for interpretation and mapping, not business logic
-    Allow organizations to define their own domain knowledge
-    Build in the open and iterate naturally
+### 5. Client Layer
+Any interface consuming classification results: dashboards, UIs, integrations.
 
+---
 
-Diagrams
-1. High-Level Flow Diagram
+## 🔄 Classification Flow
+
+```mermaid
 flowchart TD
-  A[User Input] --> B[API Endpoint]
-  B --> C[Prepare Category Context]
-  C --> D[Build Structured Prompt]
-  D --> E[Send to AI Provider]
-  E --> F[Model Processes Input]
-  F --> G[Model Returns Structured Output]
-  G --> H[Normalize & Validate Response]
-  H --> I[Return JSON to Client]
+    A[User Input] --> B[API Endpoint]
+    B --> C[Prepare Category Context]
+    C --> D[Build Structured Prompt]
+    D --> E[Send to AI Provider]
+    E --> F[Model Processes Input]
+    F --> G[Model Returns Structured Output]
+    G --> H[Normalize & Validate Response]
+    H --> I[Return JSON to Client]
+```
 
-2. Conceptual Architecture Diagram
-graph LR
-  subgraph Input Layer
-      U[User]
-      API[API Gateway]
-  end
+### Step-by-Step Process
 
-  subgraph Knowledge Base
-      CAT[Categories & Descriptions]
-      CRT[Criteria & Rules]
-  end
+1. **Input Received** - Raw text arrives via API
+2. **Context Preparation** - Load relevant categories, criteria, and rules
+3. **Prompt Construction** - Build structured prompt with input + context
+4. **AI Classification** - Send to model and receive structured output
+5. **Response Normalization** - Validate and format for client consumption
 
-  subgraph AI Connector Layer
-      PROMPT[Prompt Builder]
-      PROVIDER[AI Provider<br>(OpenAI/OpenRouter/etc.)]
-  end
+---
 
-  subgraph Classification Core
-      PREP[Context Preparator]
-      MAP[Classification Logic]
-      NORM[Response Normalizer]
-  end
+## 🗂️ Project Structure
 
-  subgraph Clients
-      FE[Frontend UI]
-      EXT[Internal Tools]
-      INT[Integrations]
-  end
+```
+ai-classifier/
+├── apps/
+│   ├── api/              # REST API server (Hono)
+│   ├── auth/             # Authentication server (Better Auth)
+│   ├── docs/             # Documentation site (Fumadocs)
+│   └── mcp/              # MCP server for AI integration
+├── packages/
+│   ├── biome-config/     # Shared linting/formatting
+│   ├── database/         # Database client & migrations
+│   │   └── categories/   # Category definitions by domain
+│   └── typescript-config/# Shared TypeScript config
+└── specs/                # Feature specs & documentation
+```
 
-  U --> API
-  API --> PREP
-  CAT --> PREP
-  CRT --> PREP
+---
 
-  PREP --> PROMPT
-  PROMPT --> PROVIDER
-  PROVIDER --> MAP
-  MAP --> NORM
-
-  NORM --> FE
-  NORM --> EXT
-  NORM --> INT
-
-3. Prompt Construction (Concept Logic)
-flowchart TB
-  A[Domain Knowledge Loaded] --> B[Generate Category Descriptions]
-  B --> C[Insert Rules & Constraints]
-  C --> D[Format Expected Output Schema]
-  D --> E[Inject User Input]
-  E --> F[Final Structured Prompt Sent to Model]
-
-4. Model Output Schema Overview
-classDiagram
-  class ClassificationResult {
-      string category
-      string explanation
-      number confidence
-      object metadata
-  }
-  
-  class Metadata {
-      string matchedCriteria
-      string modelVersion
-      string timestamp
-  }
-  
-  ClassificationResult --> Metadata
-
-
-
-
-
-## Technical stuff
-
-# Starter Kit
-
-Since i never use javascript on backend for production level system. I decided to use my friend's monorepo starter-kit to begin with. Thanks a lot to Yuris Aryansiah for creating the starter-kit monorepo! It provides modern techstack with simple setup and good docs. This is my first time work with monorepo. So that helps a lot for me. You can check out this link below :
-
-https://github.com/yurisasc/starter-kit
-A full-stack monorepo starter kit for building modern applications with TypeScript, featuring authentication, database integration, and developer tooling. 
-
-## Features
-
-- Authentication server with JWT validation and Better Auth
-- REST API server built with Hono
-- Documentation site with interactive API docs
-- MCP server for AI agent integration
-- PostgreSQL database with Drizzle ORM
-- Monorepo structure with Turborepo and pnpm workspaces
-- Docker development environment
-
-## Tech Stack
-
-- **Backend**: Hono, FastMCP, Better Auth
-- **Database**: PostgreSQL with Drizzle ORM
-- **Frontend**: React with Fumadocs UI
-- **Build**: Turborepo with pnpm workspaces
-- **Dev Tools**: Docker, Drizzle Studio, Scalar
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v18+)
 - pnpm (v9.0.0+)
 - Docker
+- OpenRouter API key
 
 ### Installation
 
 ```bash
-git clone https://github.com/yurisasc/starter-kit.git
-cd starter-kit
+# Clone the repository
+git clone [your-repo-url]
+cd ai-classifier
+
+# Install dependencies
 pnpm install
-```
 
-### Setup
-
-```bash
-# Automated environment setup
+# Setup environment variables
 pnpm setup:env
 
 # Start PostgreSQL database
@@ -269,40 +172,142 @@ pnpm db:setup
 pnpm dev
 ```
 
-**Visit:**
-- **Docs**: http://localhost:3000
+### Access Points
+
+- **Documentation**: http://localhost:3000
 - **Auth Server**: http://localhost:3001
 - **API Server**: http://localhost:3010
 - **Drizzle Studio**: https://local.drizzle.studio
 
-## Project Structure
+---
 
+## 🛠️ Technology Stack
+
+### Why These Technologies?
+
+- **Hono**: Lightweight, edge-ready, TypeScript-first framework
+- **LangChain**: Structured prompt management and AI workflow orchestration
+- **OpenRouter**: Provider flexibility without vendor lock-in
+- **PostgreSQL + Drizzle ORM**: Type-safe database operations
+- **Better Auth**: Modern authentication with JWT validation
+- **Turborepo**: Efficient monorepo builds and caching
+
+### Core Dependencies
+
+- **Backend**: Hono, FastMCP, Better Auth, LangChain
+- **Database**: PostgreSQL with Drizzle ORM
+- **Frontend**: React with Fumadocs UI
+- **Build Tools**: Turborepo with pnpm workspaces
+- **Dev Tools**: Docker, Drizzle Studio, Scalar API docs
+
+---
+
+## 📖 Key Concepts
+
+### Category Structure
+
+Each category in the knowledge store includes:
+
+```typescript
+{
+  id: string;
+  name: string;
+  description: string;
+  criteria: string[];
+  constraints?: string[];
+  severity?: "low" | "medium" | "high" | "critical";
+  examples: string[];
+}
 ```
-├── apps/
-│   ├── api/          # REST API server (Hono)
-│   ├── auth/         # Authentication server (Better Auth)
-│   ├── docs/         # Documentation site (Fumadocs)
-│   └── mcp/          # MCP server for AI integration
-├── packages/
-│   ├── biome-config/ # Shared linting/formatting config
-│   ├── database/     # Database client & migrations
-│   └── typescript-config/ # Shared TypeScript config
-└── specs/            # Feature specifications & documentation
+
+### Response Schema
+
+```typescript
+{
+  category: string;
+  explanation: string;
+  confidence: number; // 0-1 scale
+  metadata: {
+    matchedCriteria: string[];
+    modelVersion: string;
+    timestamp: string;
+  }
+}
 ```
 
-## Documentation
+---
 
-Documentation is available [here](https://starter.yuris.dev) or at http://localhost:3000 once the development servers are running.
+## 🎨 Design Philosophy
 
-- Installation Guide
-- Tech Stack Overview
-- Monorepo Structure
-- Reference Guide
+1. **Avoid Over-Engineering**: Start simple, add complexity only when needed
+2. **Inspectable & Auditable**: Every classification includes reasoning
+3. **AI for Interpretation Only**: Business logic stays in code, not in prompts
+4. **Domain Knowledge First**: Organizations define their own categories
+5. **Provider Agnostic**: Easy to switch AI providers
+6. **Build in the Open**: Document decisions and iterate transparently
 
-## Development
+---
 
-This project emphasizes:
-- Type safety at compile time and runtime
-- Version-controlled database schemas
-- Clear separation between applications and shared libraries
-- Documentation-driven development
+## 🔮 Roadmap
+
+### Phase 1: Core Classification (Current)
+- ✅ Basic API structure with Hono
+- ✅ OpenRouter integration
+- 🚧 Prompt template system
+- ⏳ Category knowledge store
+- ⏳ Response validation
+
+### Phase 2: Enhanced Features
+- Multi-domain support
+- Confidence thresholds and fallbacks
+- Classification history and analytics
+- A/B testing for prompt variations
+
+### Phase 3: Production Ready
+- Rate limiting and caching
+- Model performance monitoring
+- Cost tracking per classification
+- Admin dashboard for category management
+
+---
+
+## 🤝 Development Workflow
+
+1. Define new category set in `packages/database/categories/[domain].ts`
+2. Create prompt template in `apps/api/prompts/[domain].ts`
+3. Test classification logic with sample inputs
+4. Update API documentation
+5. Deploy and monitor
+
+---
+
+## 📚 Documentation
+
+Full documentation is available at http://localhost:3000 when running locally, including:
+
+- Installation guide
+- API reference
+- Architecture deep-dive
+- Contributing guidelines
+
+---
+
+## 🙏 Acknowledgments
+
+This project is built on top of the excellent [starter-kit monorepo](https://github.com/yurisasc/starter-kit) by Yuris Aryansiah. It provides a modern tech stack with simple setup and great documentation - perfect for getting started with monorepo architecture.
+
+---
+
+## 📝 License
+
+[Add your license here]
+
+---
+
+**Built with ❤️ as a learning project in the open**
+
+
+TODOLIST : 
+- Token estimation for predefined categories/descriptions
+- Token estimation for predefined categories/descriptions + input
+- Write comparison allowed token counts for popular AI models 
