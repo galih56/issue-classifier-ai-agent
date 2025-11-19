@@ -22,6 +22,7 @@
     "hono": "^4.9.12",
     "jose": "^5.9.6",
     "langchain": "^1.0.4",
+    "tiktoken": "^1.0.22",
     "zod": "^4.1.12"
   },
   "devDependencies": {
