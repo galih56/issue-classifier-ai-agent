@@ -311,3 +311,23 @@ TODOLIST :
 - Token estimation for predefined categories/descriptions
 - Token estimation for predefined categories/descriptions + input
 - Write comparison allowed token counts for popular AI models 
+
+
+Table api_keys {
+  workspace_id  varchar [ref: > workspaces.id] // Each key belongs to a workspace
+}
+```
+- One API key = access to ONE workspace's collections
+- User can have multiple keys for different workspaces
+
+### 2. **Job Queue Pattern**
+```
+HTTP Request → classification_jobs (pending)
+              ↓
+         Worker picks up job → http_requests (attempt 1)
+              ↓
+         Failed? → Update job (retrying, retry_after = now + 5min)
+              ↓
+         Worker retries → http_requests (attempt 2)
+              ↓
+         Success → classifications (completed)
