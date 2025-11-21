@@ -42,8 +42,6 @@ BYOK focuses on cost and provider control. We still store:
 - ✅ Category definitions and business rules (your domain knowledge)
 - ✅ User input text (which may contain sensitive information)
 
-**If you have GDPR/compliance concerns**, ensure your workspace is configured appropriately and review our data retention policies.
-
 ### Supported AI Providers
 
 | Provider | Models Supported | Setup Difficulty |
@@ -441,7 +439,6 @@ class APIKeyEncryption {
 3. **Data Privacy**
    - Classification data stored per workspace
    - Option to disable classification logging
-   - GDPR-compliant data export/deletion
 
 4. **Rate Limiting**
    - Per-workspace rate limits
