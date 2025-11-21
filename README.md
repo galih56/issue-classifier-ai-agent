@@ -42,15 +42,6 @@ BYOK focuses on cost and provider control. We still store:
 - ✅ Category definitions and business rules (your domain knowledge)
 - ✅ User input text (which may contain sensitive information)
 
-### Supported AI Providers
-
-| Provider | Models Supported | Setup Difficulty |
-|----------|-----------------|------------------|
-| OpenRouter | 200+ models | ⭐ Easy |
-| OpenAI | GPT-4, GPT-3.5 | ⭐ Easy |
-| Anthropic | Claude 3.5, Claude 3 | ⭐ Easy |
-| Azure OpenAI | GPT-4, GPT-3.5 | ⭐⭐ Medium |
-| Custom Endpoint | Any OpenAI-compatible API | ⭐⭐⭐ Advanced |
 
 ### How BYOK Works
 
