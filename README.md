@@ -1,6 +1,6 @@
 # AI Classification Service
 
-> A flexible, AI-powered classification service designed to interpret unstructured input and map it into structured categories for various business use cases. **Now with BYOK (Bring Your Own Key) support for usage transparency and provider flexibility**
+> A flexible, AI-powered classification service designed to interpret unstructured input and map it into structured categories for various business use cases
 
 ## 🎯 TL;DR
 
