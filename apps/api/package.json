@@ -23,7 +23,8 @@
     "jose": "^5.9.6",
     "langchain": "^1.0.4",
     "tiktoken": "^1.0.22",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "drizzle-orm": "^0.44.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.6",

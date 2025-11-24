@@ -30,6 +30,18 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
     schema,
   }),
 
+  user : {
+    modelName: "users",
+  },
+
+  account : {
+    modelName: "accounts",
+  },
+
+  verification : {
+    modelName: "verifications",
+  },
+
   /**
    * Email and password authentication
    */
@@ -42,6 +54,7 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
    * Session configuration
    */
   session: {
+    modelName: "sessions",
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // Refresh session every 24 hours
   },

@@ -6,6 +6,7 @@ import { env } from "./env";
 import { registerPublicRoutes } from "./routes/public";
 import { registerTimeRoutes } from "./routes/time";
 import { registerIssueClassifierRoutes } from "./routes/issue-classification";
+import { registerIssueClassifierRoutesV2 } from "./routes/v2/issue-classification";
 
 const apiApp = createOpenAPIApp();
 registerLlmDocs(apiApp);
@@ -28,6 +29,11 @@ registerTimeRoutes(apiApp);
 
 // After registerTimeRoutes(apiApp);
 registerIssueClassifierRoutes(apiApp);
+
+// Register V2 routes
+const v2App = createOpenAPIApp();
+registerIssueClassifierRoutesV2(v2App);
+apiApp.route("/v2", v2App);
 // 404 handler
 apiApp.notFound((c) => {
   return c.json({ code: "not_found", message: "Route not found" }, 404);

@@ -16,6 +16,7 @@ export const env = createEnv({
         .filter(Boolean)
         .map((url) => new URL(url).toString()),
     ),
+    DATABASE_URL: z.string().url(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
