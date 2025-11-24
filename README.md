@@ -124,7 +124,6 @@ ai-classifier/
 │   ├── api/              # REST API server (Hono)
 │   ├── auth/             # Authentication server (Better Auth)
 │   ├── docs/             # Documentation site (Fumadocs)
-│   └── mcp/              # MCP server for AI integration
 ├── packages/
 │   ├── biome-config/     # Shared linting/formatting
 │   ├── database/         # Database client & migrations
@@ -194,7 +193,7 @@ pnpm dev
 
 ### Core Dependencies
 
-- **Backend**: Hono, FastMCP, Better Auth, LangChain
+- **Backend**: Hono, Better Auth, LangChain
 - **Database**: PostgreSQL with Drizzle ORM
 - **Frontend**: React with Fumadocs UI
 - **Build Tools**: Turborepo with pnpm workspaces

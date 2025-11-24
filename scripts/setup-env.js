@@ -33,10 +33,6 @@ const ENV_FILES = [
     target: "apps/api/.env",
   },
   {
-    source: "apps/mcp/.env.example",
-    target: "apps/mcp/.env",
-  },
-  {
     source: "apps/docs/.env.example",
     target: "apps/docs/.env",
   },

@@ -66,26 +66,21 @@ authentication logic.
 
     subgraph "Resource Servers"
         API[API Server]
-        MCP[MCP Server]
     end
 
     %% Define the notes as regular nodes
     NoteAuth("<b>Auth Server Note</b><br/>Handles authentication and token issuance:<br/>- User registration/login<br/>- Session management<br/>- JWT creation<br/>- JWKS endpoint")
     NoteAPI("<b>API Server Note</b><br/>Focuses on business logic and validates JWTs")
-    NoteMCP("<b>MCP Server Note</b><br/>Provides MCP services and validates JWTs")
 
     Clients[Clients<br/>Web/Mobile Apps] -- "1. Authenticate" --> Auth
     Auth -- "2. Receive JWT" --> Clients
     Clients -- "3. Access Resource with JWT" --> API
-    Clients -- "4. Access Resource with JWT" --> MCP
     
     API -.->|Verify JWT | Auth
-    MCP -.->|Verify JWT| Auth
 
     %% Position the notes with invisible links
     Auth --- NoteAuth
     API --- NoteAPI
-    MCP --- NoteMCP
 
     %% Make the positioning links invisible
     linkStyle 6 stroke-width:0px
