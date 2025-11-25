@@ -1,9 +1,9 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import { createRoute, z } from "@hono/zod-openapi";
-import { ErrorResponseSchema } from "../lib/errors";
-import { jwtMiddleware } from "../lib/jwt";
-import { summarizeText } from "../lib/text-summarization";
-import { classifyIssue } from "../lib/issue-classification";
+import { ErrorResponseSchema } from "../../lib/errors";
+import { jwtMiddleware } from "../../lib/jwt";
+import { summarizeText } from "../../lib/text-summarization";
+import { classifyIssue } from "../../lib/issue-classification";
 
 const ClassifyIssueRequestSchema = z.object({
   text: z.string().min(1).max(10000),

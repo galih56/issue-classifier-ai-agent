@@ -5,7 +5,7 @@ import { createOpenAPIApp } from "./docs/scalar";
 import { env } from "./env";
 import { registerPublicRoutes } from "./routes/public";
 import { registerTimeRoutes } from "./routes/time";
-import { registerIssueClassifierRoutes } from "./routes/issue-classification";
+import { registerIssueClassifierRoutes } from "./routes/v1/issue-classification";
 import { registerIssueClassifierRoutesV2 } from "./routes/v2/issue-classification";
 
 const apiApp = createOpenAPIApp();
@@ -40,7 +40,7 @@ apiApp.notFound((c) => {
 });
 
 const app = new Hono();
-app.route(env.RESOURCE_API_BASE_PATH, apiApp);
+app.route(env.RESOURCE_API_BASE_PATH, v2App);
 
 const port = env.PORT;
 console.log(`Server is running on http://localhost:${port}`);
