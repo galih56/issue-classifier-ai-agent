@@ -7,7 +7,10 @@
   "types": "./src/client.ts",
   "exports": {
     ".": "./src/client.ts",
-    "./schema": "./src/schema/index.ts"
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema/index.ts",
+    "./repositories": "./src/repositories/index.ts",
+    "./types": "./src/types/index.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
