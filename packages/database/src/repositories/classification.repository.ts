@@ -83,6 +83,11 @@ export async function getClassificationByInputId(inputId: string) {
     where: eq(schema.classifications.inputId, inputId),
     with: {
       job: true,
+      category: {
+        with: {
+          parent: true,
+        },
+      },
     },
   });
   
