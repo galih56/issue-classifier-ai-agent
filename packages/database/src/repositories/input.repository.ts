@@ -125,4 +125,17 @@ export async function deleteInput(id: string) {
   return deletedInput;
 }
 
+/**
+ * Find input by raw text
+ */
+export async function findInputByText(text: string) {
+  const db = getDb();
+  
+  const input = await db.query.inputs.findFirst({
+    where: eq(schema.inputs.rawText, text),
+  });
+  
+  return input;
+}
+
 

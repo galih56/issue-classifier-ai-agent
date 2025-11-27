@@ -10,16 +10,17 @@ import {
   getClassificationByInputId,
   listClassifications,
   getCategoriesByCollection,
+  findInputByText,
 } from "@repo/database/repositories";
 import * as schema from "@repo/database/schema";
 import { eq } from "drizzle-orm";
 import { createDbClient } from "@repo/database/client";
-import { classifyIssue } from "../lib-v2";
+import { classifyIssue } from "../lib";
 
 /**
  * Classification Service
  * 
- * Unified service that combines AI classification (lib-v2) with database persistence.
+ * Unified service that combines AI classification (lib) with database persistence.
  * Handles the complete flow: input → job → AI classification → result storage
  */
 
@@ -70,9 +71,46 @@ export class ClassificationService {
     
     try {
       const categories = await getCategoriesByCollection(params.collectionName);
-      console.log(categories)
+
       if (!categories || categories.length === 0) {
         throw new Error(`No categories found for collection: ${params.collectionName}`);
+      }
+
+      // 1. Check for existing input
+      const existingInput = await findInputByText(params.text);
+      
+      if (existingInput) {
+        // Check if we have a valid classification for this input
+        const existingClassification = await getClassificationByInputId(existingInput.id);
+        
+        if (existingClassification && existingClassification.category) {
+          console.log(`Found existing classification for input: ${existingInput.id}`);
+          
+          // Determine category and subcategory names
+          // @ts-ignore - Drizzle relation inference might be tricky here without full type regeneration
+          const parentCategory = existingClassification.category.parent;
+          // @ts-ignore
+          const categoryName = parentCategory ? parentCategory.name : existingClassification.category.name;
+          // @ts-ignore
+          const subcategoryName = existingClassification.category.name;
+
+          return {
+            inputId: existingInput.id,
+            jobId: existingClassification.jobId || "", // Handle nullable jobId
+            classificationId: existingClassification.id,
+            result: {
+              category: categoryName,
+              subcategory: subcategoryName,
+              reason: existingClassification.explanation || "",
+            },
+            tokenUsage: {
+              inputTokens: 0, // Cached
+              estimatedOutputTokens: 0,
+              totalTokens: 0,
+              estimatedCost: 0,
+            },
+          };
+        }
       }
 
       const input = await createInput({
@@ -99,7 +137,7 @@ export class ClassificationService {
         collectionId: collection.id,
         status: "processing",
         provider: params.provider || "openrouter",
-        model: params.model || "mistralai/mistral-nemo:free",
+        model: params.model || "mistralai/mistral-7b-instruct:free",
       });
 
       // Update job to processing status with start time
@@ -113,7 +151,7 @@ export class ClassificationService {
           params.text,
           categories,
           env.OPENROUTER_API_KEY!,
-          params.model || "mistralai/mistral-nemo:free",
+          params.model || "mistralai/mistral-7b-instruct:free",
           "https://openrouter.ai/api/v1"
         );
 
