@@ -147,7 +147,7 @@ ai-classifier/
 
 ```bash
 # Clone the repository
-git clone [your-repo-url]
+git clone https://github.com/galih56/issue-classifier-ai-agent.git
 cd ai-classifier
 
 # Install dependencies
@@ -298,8 +298,7 @@ This project is built on top of the excellent [starter-kit monorepo](https://git
 ---
 
 ## 📝 License
-
-[Add your license here]
+This project is built within Apache 2.0 License
 
 ---
 
