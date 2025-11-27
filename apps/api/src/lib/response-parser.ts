@@ -19,6 +19,13 @@ export function extractContent(response: any): string {
  */
 export function parseClassificationResponse(content: string): ClassificationResult {
   try {
+    // Try to find the JSON object within the content
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+
+    // Fallback: Try cleaning markdown code blocks (existing logic)
     const cleaned = content.replace(/```json\n?|\n?```/g, "").trim();
     return JSON.parse(cleaned);
   } catch (error) {

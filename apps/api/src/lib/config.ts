@@ -4,7 +4,7 @@ import { ModelPricing } from './types';
 
 // Model pricing (per 1M tokens)
 export const MODEL_PRICING: Record<string, ModelPricing> = {
-  "mistralai/mistral-nemo:free": { input: 0, output: 0 },
+  "mistralai/mistral-7b-instruct:free": { input: 0, output: 0 },
   "deepseek/deepseek-chat-v3-0324:free": { input: 0, output: 0 },
   "gpt-3.5-turbo": { input: 0.5, output: 1.5 },
   "gpt-4": { input: 30, output: 60 },

@@ -1,37 +1,21 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import type { OpenAPIHono } from "@hono/zod-openapi";
-import type { Context } from "hono";
-import { ErrorResponseSchema } from "../../lib/errors";
-import { ClassificationService } from "../../services/classification.service";
+import { ErrorResponseSchema } from "../lib/errors";
+import { ClassificationService } from "../services/classification.service";
+import { parseRequestBody } from "../lib/request-utils";
 
 /**
- * Extract the `text` field from the request body, handling JSON, URL‑encoded, and multipart payloads.
- * Mirrors the logic used in the v1 route.
+ * Request schema for classification
  */
-async function extractTextFromRequest(c: Context): Promise<string> {
-  const contentType = c.req.header("content-type") || "";
-  if (contentType.includes("application/json")) {
-    const body = await c.req.json();
-    return body.text as string;
-  }
-  if (
-    contentType.includes("application/x-www-form-urlencoded") ||
-    contentType.includes("multipart/form-data")
-  ) {
-    const body = await c.req.parseBody();
-    return body.text as string;
-  }
-  throw new Error(
-    "Content-Type must be application/json, application/x-www-form-urlencoded, or multipart/form-data"
-  );
-}
-
 const ClassifyIssueRequestSchema = z
   .object({
     text: z.string().min(1).max(10000),
   })
-  .openapi("ClassifyIssueRequestV2");
+  .openapi("ClassifyIssueRequest");
 
+/**
+ * Token usage schema used in the response
+ */
 const TokenUsageSchema = z
   .object({
     inputTokens: z.number(),
@@ -41,6 +25,9 @@ const TokenUsageSchema = z
   })
   .openapi("TokenUsage");
 
+/**
+ * Response schema for classification
+ */
 const ClassifyIssueResponseSchema = z
   .object({
     inputId: z.string(),
@@ -53,17 +40,17 @@ const ClassifyIssueResponseSchema = z
     }),
     tokenUsage: TokenUsageSchema,
   })
-  .openapi("ClassifyIssueResponseV2");
+  .openapi("ClassifyIssueResponse");
 
-export function registerIssueClassifierRoutesV2(app: OpenAPIHono) {
+export function registerIssueClassifierRoutes(app: OpenAPIHono) {
   app.openapi(
     createRoute({
       method: "post",
       path: "/classify-issue",
-      tags: ["classification-v2"],
-      summary: "Classify issue (V2)",
+      tags: ["classification"],
+      summary: "Classify issue",
       description:
-        "Uses AI to classify issue text with token estimation and database persistence (V2).",
+        "Uses AI to classify issue text with token estimation and database persistence.",
       security: [{ bearerAuth: [] }],
       request: {
         // Accept three common content types
@@ -94,7 +81,8 @@ export function registerIssueClassifierRoutesV2(app: OpenAPIHono) {
       // Parse request body according to content type
       let text: string;
       try {
-        text = await extractTextFromRequest(c);
+        const body = await parseRequestBody(c);
+        text = body.text as string;
       } catch (e) {
         return c.json(
           {

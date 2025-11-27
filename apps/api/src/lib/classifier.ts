@@ -22,7 +22,7 @@ export async function classifyIssue(
   input: string,
   categories: Category[],
   apiKey: string,
-  model: string = "mistralai/mistral-nemo:free",
+  model: string = "mistralai/mistral-7b-instruct:free",
   baseURL?: string
 ): Promise<ClassificationResponse> {
   
@@ -67,7 +67,7 @@ export async function classifyIssue(
   logActualUsage(inputTokens, actualOutputTokens, actualCost);
 
   const result = parseClassificationResponse(content);
-
+  
   return {
     result,
     tokenUsage: {
@@ -86,7 +86,7 @@ export async function classifyBatch(
   inputs: string[],
   categories: Category[],
   apiKey: string,
-  model: string = "mistralai/mistral-nemo:free",
+  model: string = "mistralai/mistral-7b-instruct:free",
   baseURL?: string
 ): Promise<BatchResult> {
   const results: ClassificationResponse[] = [];

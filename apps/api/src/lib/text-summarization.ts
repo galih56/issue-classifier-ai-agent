@@ -5,7 +5,7 @@ import { env } from "../env";
 export async function summarizeText(input: string) {
   const model = new ChatOpenAI({
     apiKey: env.OPENROUTER_API_KEY!,
-    model: "mistralai/mistral-nemo:free", 
+    model: "mistralai/mistral-7b-instruct:free", 
     // model: "deepseek/deepseek-chat-v3-0324:free", 
     configuration: {
       baseURL: "https://openrouter.ai/api/v1",
