@@ -5,12 +5,10 @@ WORKDIR /app
 # Install pnpm + turbo the Alpine-safe way
 RUN npm i -g pnpm@9 turbo@2
 
-# Create pnpm home so global bins work (this one line fixes the ERR_PNPM_NO_GLOBAL_BIN_DIR)
-RUN pnpm setup
-
-# IMPORTANT: add the global bin dir to PATH for this stage
+# Create the global bin dir manually + add it to PATH
+RUN mkdir -p /root/.local/share/pnpm/global/5/node_modules/.bin
 ENV PNPM_HOME=/root/.local/share/pnpm
-ENV PATH=$PNPM_HOME:$PATH
+ENV PATH=$PNPM_HOME/global/5/node_modules/.bin:$PNPM_HOME:$PATH
 
 # Copy manifests
 COPY pnpm-lock.yaml pnpm-workspace.yaml turbo.json package.json ./
