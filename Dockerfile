@@ -21,6 +21,8 @@ WORKDIR /app
 
 RUN npm i -g pnpm@9
 
+COPY packages ./packages
+
 # Copy needed manifests
 COPY package.json pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
