@@ -1,16 +1,33 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "https://turborepo.org/schema.json",
   "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [
+        "dist/**",
+        ".output/**",
+        "!.output/public/**",
+        "!.output/cache/**"
+      ],
+      "env": [
+        "DATABASE_URL",
+        "NODE_ENV"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["DATABASE_URL"]
+      "env": ["DATABASE_URL", "NODE_ENV"]
+    },
+    "start": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "start:prod": {
+      "dependsOn": ["build"],
+      "cache": false
     },
     "lint": {
       "dependsOn": ["^lint"]

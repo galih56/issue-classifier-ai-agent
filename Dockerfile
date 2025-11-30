@@ -1,56 +1,31 @@
 # ---------- Build stage ----------
 FROM node:22-alpine AS builder
 
-# Install pnpm globally (version 9)
-RUN npm i -g pnpm@9
+RUN npm i -g pnpm@9 turbo
 
 WORKDIR /app
 
-# Copy root manifest files
-COPY package.json pnpm-lock.yaml ./
-
-# Copy workspace manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+# copy other packages if you have any in packages/, libs/, etc.
 
-# Copy TypeScript configs (if any)
-COPY apps/api/tsconfig.json apps/api/
-COPY apps/web/tsconfig.json apps/web/
+# Install + Turborepo cache priming
+RUN pnpm install --frozen-lockfile
 
-# Copy source code for both apps
-COPY apps/api/src ./apps/api/src
-COPY apps/web/src ./apps/web/src
-COPY apps/web/public ./apps/web/public
+# Copy source
+COPY . .
 
-# Install all workspace dependencies (including dev deps needed for build)
-RUN pnpm install --frozen-lockfile --shamefully-hoist
-
-# Build the API (produces dist folder)
-RUN pnpm --filter api run build
-
-# Build the SolidStart web app (produces .output folder)
-RUN pnpm --filter web run build
+# THIS is the correct way → use turbo, not pnpm --filter
+RUN turbo run build --filter=./apps/*
 
 # ---------- Runtime stage ----------
 FROM node:22-alpine AS runtime
 RUN npm i -g pnpm@9
 WORKDIR /app
-
-# Copy the built artifacts and runtime files from the builder stage
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/web/.output ./apps/web/.output
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/apps/api/package.json ./apps/api/
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-
-# Install only production dependencies (no dev deps needed at runtime)
+# copy package.jsons again...
 RUN pnpm install --prod --frozen-lockfile
 
-# Expose the port used by the SolidStart front‑end (default 3000)
-EXPOSE 3000
-
-# Start both the API and the web server concurrently.
-# The API runs on its default port (e.g., 4000) and the web app on 3000.
-# Using a simple sh command to launch both processes.
-CMD ["sh", "-c", "pnpm --filter api run start & pnpm --filter web run start"]
+CMD ["turbo", "run", "start:prod"]   # or your actual start task

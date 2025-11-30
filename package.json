@@ -1,21 +1,18 @@
 {
   "name": "issue-classifier-ai-agent",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
+    "dev": "turbo run dev",
     "build": "turbo run build",
-    "dev": "turbo run dev db:studio",
-    "dev:app": "turbo run dev",
+    "start": "turbo run start --parallel",
+    "start:prod": "turbo run start:prod --parallel",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "db:studio": "turbo run db:studio",
     "db:seed": "turbo run db:seed",
-    "db:schema": "pnpm --filter @repo/auth-server auth:generate",
-    "db:setup": "pnpm db:schema && pnpm db:generate && pnpm db:migrate && pnpm db:seed",
-    "setup:env": "node scripts/setup-env.js",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "lint-staged": "lint-staged",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -25,15 +22,15 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "turbo": "^2.5.8",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "concurrently": "^8.2.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": [
       "biome check --write"
     ]
   },
-  "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }
