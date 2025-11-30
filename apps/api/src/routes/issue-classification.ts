@@ -98,6 +98,7 @@ export function registerIssueClassifierRoutes(app: OpenAPIHono) {
           text,
           collectionName: "HR Issues",
           source: "api",
+          model: "openai/gpt-4o-mini-2024-07-18",
           workspaceId: undefined, // TODO: replace with real auth context values
           apiKeyId: undefined,
         });
