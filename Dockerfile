@@ -8,7 +8,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY package.json ./
 COPY apps/**/package.json ./apps/*/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Fix for Next.js on Alpine (choose one)
 RUN pnpm add -g next                  # ← Option A: global
