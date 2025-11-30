@@ -23,7 +23,7 @@ COPY apps/web/src ./apps/web/src
 COPY apps/web/public ./apps/web/public
 
 # Install all workspace dependencies (including dev deps needed for build)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --shamefully-hoist
 
 # Build the API (produces dist folder)
 RUN pnpm --filter api run build
