@@ -2,7 +2,6 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Install pnpm
 RUN npm i -g pnpm@9
 
 # Copy workspace configuration
@@ -15,22 +14,24 @@ COPY turbo.json ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY apps/docs/package.json ./apps/docs/
-COPY packages ./packages
+COPY packages/database/package.json ./packages/database/
+COPY packages/biome-config/package.json ./packages/biome-config/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
 
 # Copy source code BEFORE install (needed for postinstall scripts)
 COPY apps ./apps
+COPY packages ./packages
 
 # Install ALL dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build everything
-RUN pnpm turbo run build --filter=./apps/*
+# Build everything to ensure all dependencies are built
+RUN pnpm --filter @repo/api build
 
 # ---------- Runtime ----------
 FROM node:22-alpine AS runtime
 WORKDIR /app
 
-# Install pnpm only (no turbo needed)
 RUN npm i -g pnpm@9
 
 # Copy workspace configuration
@@ -38,22 +39,24 @@ COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 
-# Copy package.json files
+# Copy ALL package.json files (needed for workspace resolution)
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY apps/docs/package.json ./apps/docs/
-COPY packages ./packages
+COPY packages/database/package.json ./packages/database/
+COPY packages/biome-config/package.json ./packages/biome-config/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
 
-# Copy built artifacts from builder
+# Copy the entire packages directory (source code, not just package.json)
+COPY --from=builder /app/packages ./packages
+
+# Copy built API
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/web/.output ./apps/web/.output
-COPY --from=builder /app/apps/docs/.next ./apps/docs/.next
-COPY --from=builder /app/apps/docs/public ./apps/docs/public
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+# Install production dependencies
+RUN pnpm install --prod --frozen-lockfile
 
 EXPOSE 3000
 
-# Run apps directly without turbo
-CMD pnpm --filter @repo/api start & pnpm --filter @repo/web start & pnpm --filter @repo/docs start & wait
+# Start from the root, not from apps/api
+CMD ["pnpm", "--filter", "@repo/api", "start"]
