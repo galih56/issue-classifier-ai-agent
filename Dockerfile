@@ -20,7 +20,7 @@ RUN turbo run build --filter=./apps/*
 FROM node:22-alpine AS runtime
 WORKDIR /app
 
-RUN npm i -g pnpm@9
+RUN npm i -g pnpm@9 turbo@2
 
 COPY packages ./packages
 
@@ -42,4 +42,4 @@ RUN pnpm install --prod --ignore-scripts
 
 EXPOSE 3000
 
-CMD ["turbo", "run", "start:prod", "--parallel", "--filter=api", "--filter=web", "--filter=docs"]
+CMD ["pnpm", "turbo", "run", "start:prod", "--parallel", "--filter=api", "--filter=web", "--filter=docs"]
