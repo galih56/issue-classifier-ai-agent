@@ -30,14 +30,13 @@ RUN pnpm turbo run build --filter=./apps/*
 FROM node:22-alpine AS runtime
 WORKDIR /app
 
-# Install pnpm and turbo globally
-RUN npm i -g pnpm@9 turbo@2
+# Install pnpm only (no turbo needed)
+RUN npm i -g pnpm@9
 
 # Copy workspace configuration
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY pnpm-lock.yaml ./
-COPY turbo.json ./
 
 # Copy package.json files
 COPY apps/api/package.json ./apps/api/
@@ -56,5 +55,5 @@ RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 EXPOSE 3000
 
-# Use the start:prod script which uses turbo
-CMD ["pnpm", "run", "start:prod"]
+# Run apps directly without turbo
+CMD pnpm --filter @repo/api start & pnpm --filter @repo/web start & pnpm --filter @repo/docs start & wait
