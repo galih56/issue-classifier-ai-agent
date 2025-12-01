@@ -6,7 +6,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start --parallel",
-    "start:prod": "turbo run start:prod --parallel",
+    "start:prod": "turbo run start --parallel --filter=@repo/api --filter=@repo/web --filter=@repo/docs",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:generate": "turbo run db:generate",
@@ -17,9 +17,7 @@
     "setup:env": "node scripts/setup-env.js",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:seed": "turbo run db:seed",
-    "prepare": "husky",
-    "start:all": "pnpm --filter api start & pnpm --filter web start & pnpm --filter docs start"
- 
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.6",
