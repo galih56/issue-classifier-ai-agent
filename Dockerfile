@@ -18,12 +18,12 @@ COPY packages/database/package.json ./packages/database/
 COPY packages/biome-config/package.json ./packages/biome-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 
-# Install dependencies first
-RUN pnpm install --frozen-lockfile
-
-# Copy source code after install
-COPY apps/api ./apps/api
+# Copy source code BEFORE install (docs postinstall needs it)
+COPY apps ./apps
 COPY packages ./packages
+
+# Install dependencies (postinstall scripts will run)
+RUN pnpm install --frozen-lockfile
 
 # Build API
 RUN pnpm --filter @repo/api build
