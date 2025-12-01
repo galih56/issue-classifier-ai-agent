@@ -17,7 +17,9 @@
     "setup:env": "node scripts/setup-env.js",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:seed": "turbo run db:seed",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start:all": "pnpm --filter api start & pnpm --filter web start & pnpm --filter docs start"
+ 
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.6",
