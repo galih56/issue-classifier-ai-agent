@@ -1,6 +1,5 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { registerLlmDocs } from "./docs/llm";
 import { createOpenAPIApp } from "./docs/scalar";
 import { env } from "./env";
 import { registerPublicRoutes } from "./routes/public";
@@ -8,7 +7,6 @@ import { registerTimeRoutes } from "./routes/time";
 import { registerIssueClassifierRoutes } from "./routes/issue-classification";
 
 const apiApp = createOpenAPIApp();
-registerLlmDocs(apiApp);
 
 // Health check
 apiApp.get("/health", (c) => {
