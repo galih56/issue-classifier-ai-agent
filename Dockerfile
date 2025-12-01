@@ -8,6 +8,7 @@ RUN npm i -g pnpm@9 turbo@2
 # Copy workspace manifests
 COPY pnpm-lock.yaml pnpm-workspace.yaml turbo.json package.json ./
 COPY apps ./apps
+COPY packages ./packages
 
 # Install dependencies
 RUN pnpm install
@@ -24,6 +25,7 @@ RUN npm i -g pnpm@9
 COPY packages ./packages
 
 # Copy needed manifests
+COPY pnpm-workspace.yaml ./
 COPY package.json pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
