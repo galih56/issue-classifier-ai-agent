@@ -11,7 +11,7 @@ COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY turbo.json ./
 
-# Copy all package.json files first (better caching)
+# Copy all package.json files
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY apps/docs/package.json ./apps/docs/
@@ -20,7 +20,7 @@ COPY packages ./packages
 # Copy source code BEFORE install (needed for postinstall scripts)
 COPY apps ./apps
 
-# Install ALL dependencies (postinstall scripts will run)
+# Install ALL dependencies
 RUN pnpm install --frozen-lockfile
 
 # Build everything
@@ -30,12 +30,14 @@ RUN pnpm turbo run build --filter=./apps/*
 FROM node:22-alpine AS runtime
 WORKDIR /app
 
-RUN npm i -g pnpm@9
+# Install pnpm and turbo globally
+RUN npm i -g pnpm@9 turbo@2
 
 # Copy workspace configuration
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY pnpm-lock.yaml ./
+COPY turbo.json ./
 
 # Copy package.json files
 COPY apps/api/package.json ./apps/api/
@@ -49,9 +51,10 @@ COPY --from=builder /app/apps/web/.output ./apps/web/.output
 COPY --from=builder /app/apps/docs/.next ./apps/docs/.next
 COPY --from=builder /app/apps/docs/public ./apps/docs/public
 
-# Install only production dependencies (skip postinstall scripts)
+# Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 EXPOSE 3000
 
-CMD ["pnpm", "run", "start:all"]
+# Use the start:prod script which uses turbo
+CMD ["pnpm", "run", "start:prod"]
