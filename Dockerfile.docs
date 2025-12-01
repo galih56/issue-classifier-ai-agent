@@ -1,29 +1,24 @@
-# ---------- Builder ----------
 FROM node:22-alpine AS builder
 WORKDIR /app
 
 RUN npm i -g pnpm@9
 
-# Copy workspace files
+# Copy workspace config
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 
-# Copy all package.json files
-COPY apps/api/package.json ./apps/api/
-COPY apps/web/package.json ./apps/web/
+# Copy package.json files
 COPY apps/docs/package.json ./apps/docs/
 COPY packages/database/package.json ./packages/database/
 COPY packages/biome-config/package.json ./packages/biome-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
-COPY apps/web ./apps/web
+# Copy source (docs needs it for postinstall)
+COPY apps/docs ./apps/docs
 COPY packages ./packages
 
-# Build only web
-RUN pnpm --filter @repo/web build
+# Install and build
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @repo/docs build
 
 # ---------- Runtime ----------
 FROM node:22-alpine AS runtime
@@ -31,25 +26,26 @@ WORKDIR /app
 
 RUN npm i -g pnpm@9
 
-# Copy workspace files
+# Copy workspace config
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 
 # Copy package.json files
-COPY apps/web/package.json ./apps/web/
+COPY apps/docs/package.json ./apps/docs/
 COPY packages/database/package.json ./packages/database/
 COPY packages/biome-config/package.json ./packages/biome-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 
-# Copy source for packages
-COPY packages ./packages
+# Copy packages source
+COPY --from=builder /app/packages ./packages
 
-# Copy built web app
-COPY --from=builder /app/apps/web/.output ./apps/web/.output
+# Copy built docs
+COPY --from=builder /app/apps/docs/.next ./apps/docs/.next
+COPY --from=builder /app/apps/docs/public ./apps/docs/public
 
-# Install production dependencies
+# Install production deps
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 EXPOSE 3000
 
-WORKDIR /app/apps/web
-CMD ["node", ".output/server/index.mjs"]
+WORKDIR /app
+CMD ["pnpm", "--filter", "@repo/docs", "start"]
