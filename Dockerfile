@@ -2,7 +2,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Install pnpm (turbo will be installed locally from package.json)
+# Install pnpm
 RUN npm i -g pnpm@9
 
 # Copy workspace configuration
@@ -15,14 +15,13 @@ COPY turbo.json ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY apps/docs/package.json ./apps/docs/
-COPY packages/*/package.json ./packages/
-
-# Install ALL dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
-COPY apps ./apps
 COPY packages ./packages
+
+# Copy source code BEFORE install (needed for postinstall scripts)
+COPY apps ./apps
+
+# Install ALL dependencies (postinstall scripts will run)
+RUN pnpm install --frozen-lockfile
 
 # Build everything
 RUN pnpm turbo run build --filter=./apps/*
@@ -50,7 +49,7 @@ COPY --from=builder /app/apps/web/.output ./apps/web/.output
 COPY --from=builder /app/apps/docs/.next ./apps/docs/.next
 COPY --from=builder /app/apps/docs/public ./apps/docs/public
 
-# Install only production dependencies
+# Install only production dependencies (skip postinstall scripts)
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 EXPOSE 3000
