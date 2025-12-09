@@ -23,11 +23,12 @@
     "@biomejs/biome": "^2.2.6",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "concurrently": "^8.2.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
+    "tsx": "^4.20.6",
     "turbo": "^2.5.8",
-    "typescript": "5.9.3",
-    "concurrently": "^8.2.2"
+    "typescript": "5.9.3"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": [
