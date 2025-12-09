@@ -52,7 +52,7 @@ COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Install production dependencies and ignore scripts (prevents husky error)
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 EXPOSE 3010
 
