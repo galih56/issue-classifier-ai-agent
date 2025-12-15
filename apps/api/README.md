@@ -37,7 +37,7 @@ cp .env.example .env
 ```env
 PORT=3010
 RESOURCE_API_BASE_PATH=/api/v1/resource
-JWKS_URL=http://localhost:3001/api/v1/auth/jwks
+JWKS_URL=http://localhost:3001/api/auth/jwks
 JWT_ISSUER=http://localhost:3001
 JWT_AUDIENCE=http://localhost:3001
 OPENAPI_SERVER_URLS=http://localhost:3010,https://api.example.com
@@ -143,7 +143,7 @@ Obtain a short-lived JWT from the auth server:
 
 ```bash
 # Example using auth server
-curl -X POST http://localhost:3001/api/v1/auth/token \
+curl -X POST http://localhost:3001/api/auth/token \
   -H "Content-Type: application/json" \
   -d '{ "email": "user@example.com", "password": "password" }'
 ```

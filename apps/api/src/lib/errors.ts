@@ -61,6 +61,21 @@ export function badRequest(
   );
 }
 
+export function notFound(
+  c: Context,
+  message = "Resource not found",
+  details?: Record<string, unknown>,
+): Response {
+  return c.json<ErrorResponse>(
+    {
+      code: "not_found",
+      message,
+      ...(details && { details }),
+    },
+    404,
+  );
+}
+
 export function internalError(c: Context, message: string, details?: any) {
   return c.json({
     code: "internal_error",

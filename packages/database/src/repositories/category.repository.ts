@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { createDbClient } from "../client";
 import * as schema from "../schema";
 import type { Category, CollectionCategoryRecord } from "../types";
@@ -17,6 +17,161 @@ function getDb() {
     dbInstance = createDbClient(connectionString);
   }
   return dbInstance;
+}
+
+// ============================================
+// COLLECTIONS CRUD
+// ============================================
+
+/**
+ * Get all collections
+ */
+export async function getAllCollections() {
+  const db = getDb();
+  return await db.select().from(schema.collections);
+}
+
+/**
+ * Get collection by ID
+ */
+export async function getCollectionById(id: string) {
+  const db = getDb();
+  return await db.query.collections.findFirst({
+    where: eq(schema.collections.id, id),
+  });
+}
+
+/**
+ * Get collection by name
+ */
+export async function getCollectionByName(name: string) {
+  const db = getDb();
+  return await db.query.collections.findFirst({
+    where: eq(schema.collections.name, name),
+  });
+}
+
+/**
+ * Create a new collection
+ */
+export async function createCollection(data: {
+  name: string;
+  description?: string;
+  workspaceId?: string;
+}) {
+  const db = getDb();
+  const result = await db
+    .insert(schema.collections)
+    .values(data)
+    .returning();
+  return result[0];
+}
+
+/**
+ * Update a collection
+ */
+export async function updateCollection(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+  }
+) {
+  const db = getDb();
+  const result = await db
+    .update(schema.collections)
+    .set(data)
+    .where(eq(schema.collections.id, id))
+    .returning();
+  return result[0];
+}
+
+/**
+ * Delete a collection
+ */
+export async function deleteCollection(id: string) {
+  const db = getDb();
+  const result = await db
+    .delete(schema.collections)
+    .where(eq(schema.collections.id, id))
+    .returning();
+  return result.length > 0;
+}
+
+// ============================================
+// CATEGORIES CRUD
+// ============================================
+
+/**
+ * Get all categories for a collection
+ */
+export async function getCategoriesByCollectionId(collectionId: string) {
+  const db = getDb();
+  return await db
+    .select()
+    .from(schema.collectionCategories)
+    .where(eq(schema.collectionCategories.collectionId, collectionId));
+}
+
+/**
+ * Get category by ID
+ */
+export async function getCategoryById(id: string) {
+  const db = getDb();
+  return await db.query.collectionCategories.findFirst({
+    where: eq(schema.collectionCategories.id, id),
+  });
+}
+
+/**
+ * Create a new category
+ */
+export async function createCategory(data: {
+  collectionId: string;
+  name: string;
+  description?: string;
+  parentId?: string;
+  orderIndex?: number;
+}) {
+  const db = getDb();
+  const result = await db
+    .insert(schema.collectionCategories)
+    .values(data)
+    .returning();
+  return result[0];
+}
+
+/**
+ * Update a category
+ */
+export async function updateCategory(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+    parentId?: string;
+    orderIndex?: number;
+  }
+) {
+  const db = getDb();
+  const result = await db
+    .update(schema.collectionCategories)
+    .set(data)
+    .where(eq(schema.collectionCategories.id, id))
+    .returning();
+  return result[0];
+}
+
+/**
+ * Delete a category
+ */
+export async function deleteCategory(id: string) {
+  const db = getDb();
+  const result = await db
+    .delete(schema.collectionCategories)
+    .where(eq(schema.collectionCategories.id, id))
+    .returning();
+  return result.length > 0;
 }
 
 /**

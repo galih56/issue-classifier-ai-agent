@@ -34,11 +34,21 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.url().describe("Base URL where auth server is accessible"),
 
     // Server
-    PORT: z.coerce.number().positive().default(3000).describe("Server port"),
+    PORT: z.coerce.number().positive().default(3001).describe("Server port"),
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development")
       .describe("Runtime environment"),
+    ALLOWED_ORIGINS: z
+      .string()
+      .default("http://localhost:3001")
+      .transform((value) =>
+        value
+          .split(",")
+          .map((origin) => origin.trim())
+          .filter(Boolean)
+      )
+      .pipe(z.array(z.string())),
   },
 
   /**

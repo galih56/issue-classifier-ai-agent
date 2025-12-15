@@ -50,7 +50,7 @@ export function requireScope(requiredScope: string) {
   return createMiddleware(async (c, next) => {
     const payload = c.get("jwtPayload");
     const scopes = payload?.scp || [];
-
+    
     if (!scopes.includes(requiredScope)) {
       return forbidden(c, "Insufficient permissions", {
         required: requiredScope,

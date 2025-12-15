@@ -8,6 +8,20 @@
       "when": 1763907810300,
       "tag": "0000_abandoned_the_initiative",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765704935419,
+      "tag": "0001_chief_the_executioner",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765709192166,
+      "tag": "0002_dazzling_hydra",
+      "breakpoints": true
     }
   ]
 }

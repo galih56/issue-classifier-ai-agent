@@ -1,7 +1,7 @@
 import * as schema from "@repo/database/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { jwt, openAPI } from "better-auth/plugins";
+import { admin, jwt, openAPI, bearer } from "better-auth/plugins";
 import { AUTH_API_BASE_PATH } from "../config/api";
 import { env } from "../env";
 import { db } from "./db";
@@ -30,8 +30,15 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
     schema,
   }),
 
-  user : {
+  user: {
     modelName: "users",
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "user",
+      },
+    },
   },
 
   account : {
@@ -77,21 +84,8 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
       generateId: () => crypto.randomUUID(),
     },
   },
+  trustedOrigins: ["http://localhost:3000", "http://localhost:3010"],
 
-  /**
-   * User configuration
-   *
-   * Example: Adding custom fields to the user table
-   * user: {
-   *   additionalFields: {
-   *     role: {
-   *       type: "string",
-   *       required: false,
-   *       defaultValue: "user",
-   *     },
-   *   },
-   * },
-   */
 
   /**
    * Plugins configuration
@@ -125,17 +119,24 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     openAPI(),
     /**
+     * Admin plugin for user management
+     * Provides endpoints for managing users, roles, and sessions
+     * Docs: https://www.better-auth.com/docs/plugins/admin
+     */
+    admin(),
+    /**
      * JWT plugin for issuing access tokens to backend services
      * Exposes /api/v1/auth/token and /api/v1/auth/jwks endpoints
      */
     jwt({
       jwt: {
         /**
-         * Define minimal JWT payload (id, email only)
+         * Define JWT payload (id, email, and scope based on role)
          */
         definePayload: ({ user }) => ({
           id: user.id,
           email: user.email,
+          scp: user.role === "admin" ? ["admin"] : ["user"],
         }),
         /**
          * Short-lived tokens: 15 minutes per spec
@@ -143,6 +144,7 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
         expirationTime: "15m",
       },
     }),
+    bearer()
   ],
 });
 

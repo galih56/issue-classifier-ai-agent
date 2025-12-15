@@ -27,7 +27,7 @@ app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: env.BETTER_AUTH_URL,
+    origin: [env.BETTER_AUTH_URL, "http://localhost:3000"],
     credentials: true,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

@@ -1,24 +1,47 @@
-import { Link, Outlet, createRootRoute } from "@tanstack/solid-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/solid-router'
+import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
+import TanStackQueryProvider from '../integrations/tanstack-query/provider.tsx'
+import { ErrorBoundary } from '../components/error-boundary.tsx'
 
-import { clientOnly } from "@solidjs/start";
-import { Suspense } from "solid-js";
+import '@fontsource/inter/500.css'
+
+import { HydrationScript } from 'solid-js/web'
+import { Suspense } from 'solid-js'
 
 
-const Devtools = clientOnly(() => import("../components/Devtools"));
 
-export const Route = createRootRoute({
-  component: RootComponent
-});
+import styleCss from './../styles.css?url'
+
+export const Route = createRootRouteWithContext()({
+  head: () => ({
+    links: [{ rel: 'stylesheet', href: styleCss }],
+  }),
+  shellComponent: RootComponent,
+})
 
 function RootComponent() {
   return (
-    <>
-      <Link to="/">Index</Link>
-      <Link to="/about">About</Link>
-      <Suspense>
-        <Outlet />
-        <Devtools />
-      </Suspense>
-    </>
-  );
+    <html>
+      <head>
+        <HydrationScript />
+      </head>
+      <body>
+        <HeadContent />
+        <Suspense>
+          <TanStackQueryProvider>
+            <ErrorBoundary>
+              <Outlet />
+              <TanStackRouterDevtools />
+            </ErrorBoundary>
+          </TanStackQueryProvider>
+        </Suspense>
+        <Scripts />
+      </body>
+    </html>
+  )
 }

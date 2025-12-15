@@ -1,21 +1,47 @@
 {
-  "name": "with-tanstack-router",
+  "name": "web",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start",
-    "version": "vinxi version"
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@tanstack/solid-router": "^1.135.2",
-    "@tanstack/solid-router-devtools": "^1.135.2",
-    "@tanstack/router-plugin": "^1.135.2",
-    "@solidjs/start": "^1.2.0",
-    "solid-js": "^1.9.10",
-    "vinxi": "^0.5.8"
+    "@fontsource/inter": "^5.2.8",
+    "@kobalte/core": "^0.13.11",
+    "@t3-oss/env-core": "^0.13.8",
+    "@tailwindcss/vite": "^4.0.6",
+    "@tanstack/router-plugin": "^1.133.21",
+    "@tanstack/solid-form": "^1.0.0",
+    "@tanstack/solid-query": "^5.66.0",
+    "@tanstack/solid-query-devtools": "^5.66.0",
+    "@tanstack/solid-router": "^1.133.20",
+    "@tanstack/solid-router-devtools": "^1.133.20",
+    "@tanstack/solid-start": "^1.132.25",
+    "@tanstack/solid-store": "^0.7.0",
+    "@tanstack/store": "^0.7.0",
+    "better-auth": "^1.3.27",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-solid": "^0.544.0",
+    "nitro": "latest",
+    "solid-js": "^1.9.9",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.0.6",
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^7.1.7",
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^4.1.11"
   },
-  "engines": {
-    "node": ">=22"
+  "devDependencies": {
+    "@tanstack/devtools-vite": "^0.3.11",
+    "@types/node": "^25.0.1",
+    "baseline-browser-mapping": "^2.9.7",
+    "typescript": "^5.7.2",
+    "vite": "^7.1.7",
+    "vite-plugin-solid": "^2.11.10"
   }
 }

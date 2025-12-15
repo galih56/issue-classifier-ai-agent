@@ -1,14 +1,38 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { registerLlmDocs } from "./docs/llm";
+import { cors } from "hono/cors";
 import { createOpenAPIApp } from "./docs/scalar";
 import { env } from "./env";
 import { registerPublicRoutes } from "./routes/public";
 import { registerTimeRoutes } from "./routes/time";
 import { registerIssueClassifierRoutes } from "./routes/issue-classification";
+import { registerUserRoutes } from "./routes/users";
+import { registerCategoryRoutes } from "./routes/categories";
+import { registerWorkspaceRoutes } from "./routes/workspaces";
 
 const apiApp = createOpenAPIApp();
-registerLlmDocs(apiApp);
+
+// CORS middleware - restrict to allowed origins
+apiApp.use(
+  "*",
+  cors({
+    origin: (origin) => {
+      // Check if origin is in allowed list
+      if (env.ALLOWED_ORIGINS.includes(origin)) {
+        return origin;
+      }
+      
+      // Reject other origins
+      return null;
+    },
+    credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length", "X-Request-Id"],
+    maxAge: 600, // 10 minutes
+  })
+);
+
 
 // Health check
 apiApp.get("/health", (c) => {
@@ -26,6 +50,9 @@ apiApp.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
 registerPublicRoutes(apiApp);
 registerTimeRoutes(apiApp);
 registerIssueClassifierRoutes(apiApp);
+registerUserRoutes(apiApp);
+registerCategoryRoutes(apiApp);
+registerWorkspaceRoutes(apiApp);
 
 // 404 handler
 apiApp.notFound((c) => {
