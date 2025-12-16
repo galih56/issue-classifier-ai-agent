@@ -27,13 +27,13 @@ export interface CreateClassificationParams {
   inputId: string;
   categoryId: string;
   confidence?: number;
-  explanation?: string;
+  explaination?: string;
 }
 
 export interface UpdateClassificationParams {
   categoryId?: string;
   confidence?: number;
-  explanation?: string;
+  explaination?: string;
 }
 
 /**
@@ -49,7 +49,7 @@ export async function createClassification(params: CreateClassificationParams) {
       inputId: params.inputId,
       categoryId: params.categoryId,
       confidence: params.confidence,
-      explanation: params.explanation,
+      explaination: params.explaination,
     })
     .returning();
   

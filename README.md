@@ -4,7 +4,7 @@
 
 ## 🎯 TL;DR
 
-This service uses AI to automatically classify text inputs (issue reports, employee profiles, requests) into predefined categories with explanations and confidence scores. Built with a provider-agnostic architecture, it's designed to support multiple domains: IT support, HR workflows, salary structures, and more.
+This service uses AI to automatically classify text inputs (issue reports, employee profiles, requests) into predefined categories with explainations and confidence scores. Built with a provider-agnostic architecture, it's designed to support multiple domains: IT support, HR workflows, salary structures, and more.
 
 ---
 
@@ -45,7 +45,7 @@ The service receives unstructured text and classifies it into predefined categor
 {
   "category": "Network Connectivity",
   "confidence": 0.89,
-  "explanation": "Issue involves WiFi connection problems following a system update. Likely driver or configuration related.",
+  "explaination": "Issue involves WiFi connection problems following a system update. Likely driver or configuration related.",
   "suggestedPriority": "medium",
   "metadata": {
     "matchedCriteria": ["wifi", "connectivity", "update"],
@@ -224,7 +224,7 @@ Each category in the knowledge store includes:
 ```typescript
 {
   category: string;
-  explanation: string;
+  explaination: string;
   confidence: number; // 0-1 scale
   metadata: {
     matchedCriteria: string[];

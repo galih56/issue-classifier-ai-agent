@@ -1,7 +1,7 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import { createRoute, z } from "@hono/zod-openapi";
 import { badRequest, ErrorResponseSchema, notFound } from "../lib/errors";
-import { jwtMiddleware, requireScope } from "../lib/jwt";
+import { jwtMiddleware } from "../lib/jwt";
 import { UserService } from "../services/user.service";
 
 const UserSchema = z
@@ -289,11 +289,18 @@ const deleteUserRoute = createRoute({
 });
 
 export function registerUserRoutes(app: OpenAPIHono) {
-  // Apply JWT middleware and admin scope requirement
-  app.use("/users/*", jwtMiddleware, requireScope("admin"));
+  // Apply JWT middleware
+  app.use("/users/*", jwtMiddleware);
 
-  // List users
+  // List users (Admin only)
   app.openapi(listUsersRoute, async (c) => {
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
+    const isAdmin = payload?.scp?.includes("admin");
+
+    if (!isAdmin) {
+      return c.json({ error: "Forbidden", message: "Admin access required." }, 403);
+    }
+
     const users = await UserService.getUsers();
     return c.json(
       {
@@ -309,9 +316,18 @@ export function registerUserRoutes(app: OpenAPIHono) {
     );
   });
 
-  // Get user by ID
+  // Get user by ID (Admin or Self)
   app.openapi(getUserRoute, async (c) => {
     const { id } = c.req.valid("param");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
+    
+    const isAdmin = payload?.scp?.includes("admin");
+    const isSelf = id === payload?.sub;
+
+    if (!isAdmin && !isSelf) {
+      return c.json({ error: "Forbidden", message: "You can only view your own profile." }, 403);
+    }
+
     const user = await UserService.getUserById(id);
 
     if (!user) {
@@ -321,6 +337,7 @@ export function registerUserRoutes(app: OpenAPIHono) {
     return c.json(
       {
         ...user,
+        role: user.role as "user" | "admin",
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
       },
@@ -328,15 +345,22 @@ export function registerUserRoutes(app: OpenAPIHono) {
     );
   });
 
-  // Create user
+  // Create user (Admin only)
   app.openapi(createUserRoute, async (c) => {
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
+    const isAdmin = payload?.scp?.includes("admin");
+
+    if (!isAdmin) {
+      return c.json({ error: "Forbidden", message: "Admin access required." }, 403);
+    }
 
     try {
       const user = await UserService.createUser(body);
       return c.json(
         {
           ...user,
+          role: user.role as "user" | "admin",
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
         },
@@ -349,10 +373,18 @@ export function registerUserRoutes(app: OpenAPIHono) {
     }
   });
 
-  // Update user
+  // Update user (Admin or Self)
   app.openapi(updateUserRoute, async (c) => {
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
+
+    const isAdmin = payload?.scp?.includes("admin");
+    const isSelf = id === payload?.sub;
+
+    if (!isAdmin && !isSelf) {
+      return c.json({ error: "Forbidden", message: "You can only update your own profile." }, 403);
+    }
 
     try {
       const user = await UserService.updateUser(id, body);
@@ -364,6 +396,7 @@ export function registerUserRoutes(app: OpenAPIHono) {
       return c.json(
         {
           ...user,
+          role: user.role as "user" | "admin",
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
         },
@@ -376,9 +409,17 @@ export function registerUserRoutes(app: OpenAPIHono) {
     }
   });
 
-  // Delete user
+  // Delete user (Admin or Self)
   app.openapi(deleteUserRoute, async (c) => {
     const { id } = c.req.valid("param");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
+
+    const isAdmin = payload?.scp?.includes("admin");
+    const isSelf = id === payload?.sub;
+
+    if (!isAdmin && !isSelf) {
+      return c.json({ error: "Forbidden", message: "You can only delete your own profile." }, 403);
+    }
 
     try {
       const deleted = await UserService.deleteUser(id);

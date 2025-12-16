@@ -98,11 +98,15 @@ function WorkspaceSetupPage() {
 
             <div class="space-y-2">
               <Label for="workspace-description" class="text-base font-medium">
-                What will you use this workspace for?
-              </Label>
+                What you expect from this AI Agent workspace?
+              </Label> 
+              <br/>
+              <span class="text-sm text-muted-foreground">
+                This description will be used for AI Agent to understand your workspace
+              </span>
               <Textarea
                 id="workspace-description"
-                placeholder="Tell us about your goals and how you plan to use this workspace..."
+                placeholder="Write your first prompt here"
                 required
                 value={workspaceDescription()}
                 onInput={(e) => setWorkspaceDescription(e.currentTarget.value)}

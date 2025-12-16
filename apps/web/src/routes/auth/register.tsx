@@ -38,11 +38,11 @@ function RegisterPage() {
         name: name(),
       }, {
         onSuccess: () => {
-            navigate({ to: "/auth/workspace-setup" })
+          navigate({ to: "/auth/workspace-setup" })
         },
         onError: (ctx) => {
-             setError(ctx.error.message)
-             setLoading(false)
+          setError(ctx.error.message)
+          setLoading(false)
         }
       })
     } catch (err: any) {

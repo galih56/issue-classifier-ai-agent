@@ -213,7 +213,7 @@ Final classification results after successful processing.
 | input_id | varchar | References `inputs.id` |
 | category_id | varchar | References `collection_categories.id` - chosen category |
 | confidence | float | AI's confidence score (0.0 - 1.0) |
-| explanation | text | AI's reasoning for the choice |
+| explaination | text | AI's reasoning for the choice |
 | model_name | varchar | Model that made the classification |
 | created_at | timestamp | Classification timestamp |
 
@@ -269,7 +269,7 @@ User corrections and feedback on classification accuracy.
 | user_id | varchar | References `users.id` |
 | correct_category_id | varchar | References `collection_categories.id` - user's correction |
 | is_correct | boolean | Simple correct/incorrect flag |
-| comment | text | Optional user explanation |
+| comment | text | Optional user explaination |
 | created_at | timestamp | Feedback timestamp |
 
 **Use Cases:**
@@ -416,7 +416,7 @@ INSERT INTO classifications (
   input_id,
   category_id,
   confidence,
-  explanation,
+  explaination,
   model_name
 ) VALUES (
   'job_abc',

@@ -105,7 +105,7 @@ CREATE TABLE "classifications" (
 	"input_id" text,
 	"category_id" text,
 	"confidence" real,
-	"explanation" text,
+	"explaination" text,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

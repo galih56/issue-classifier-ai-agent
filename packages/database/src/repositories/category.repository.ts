@@ -58,6 +58,7 @@ export async function createCollection(data: {
   name: string;
   description?: string;
   workspaceId?: string;
+  creatorId?: string;
 }) {
   const db = getDb();
   const result = await db
@@ -132,6 +133,7 @@ export async function createCategory(data: {
   description?: string;
   parentId?: string;
   orderIndex?: number;
+  creatorId?: string;
 }) {
   const db = getDb();
   const result = await db

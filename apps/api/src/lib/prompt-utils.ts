@@ -41,7 +41,7 @@ export function createClassificationPrompt(): PromptTemplate {
     Issue description:
     {text}
 
-    Return your response as valid JSON only (no markdown, no explanations):
+    Return your response as valid JSON only (no markdown, no explainations):
     {{
       "category": "<category name>",
       "subcategory": "<subcategory name>",

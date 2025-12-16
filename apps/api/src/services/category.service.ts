@@ -38,6 +38,7 @@ export class CategoryService {
     name: string;
     description?: string;
     workspaceId?: string;
+    creatorId?: string;
   }) {
     return createCollection(data);
   }
@@ -74,6 +75,7 @@ export class CategoryService {
     description?: string;
     parentId?: string;
     orderIndex?: number;
+    creatorId?: string;
   }) {
     return createCategory(data);
   }

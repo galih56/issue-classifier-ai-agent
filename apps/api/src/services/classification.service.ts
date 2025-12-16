@@ -101,7 +101,7 @@ export class ClassificationService {
             result: {
               category: categoryName,
               subcategory: subcategoryName,
-              reason: existingClassification.explanation || "",
+              reason: existingClassification.explaination || "",
             },
             tokenUsage: {
               inputTokens: 0, // Cached
@@ -173,7 +173,7 @@ export class ClassificationService {
           jobId: job.id,
           inputId: input.id,
           categoryId: categoryId,
-          explanation: aiResponse.result.reason,
+          explaination: aiResponse.result.reason,
         });
 
         const latencyMs = Date.now() - startTime;

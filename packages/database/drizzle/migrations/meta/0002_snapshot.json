@@ -781,8 +781,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "explanation": {
-          "name": "explanation",
+        "explaination": {
+          "name": "explaination",
           "type": "text",
           "primaryKey": false,
           "notNull": false

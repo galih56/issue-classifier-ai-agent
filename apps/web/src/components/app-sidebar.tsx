@@ -22,8 +22,8 @@ const mainMenuItems = [
     icon: Home
   },
   {
-    title: "Category Management",
-    url: "/dashboard/categories",
+    title: "Collections",
+    url: "/dashboard/collections",
     icon: FolderTree
   },
   {
@@ -34,6 +34,8 @@ const mainMenuItems = [
 ]
  
 export function AppSidebar() {
+  const session = authClient.useSession()
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -41,7 +43,12 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <For each={mainMenuItems}>
+              <For each={mainMenuItems.filter(item => {
+                if (item.title === "User Management") {
+                  return session().data?.user.role === "admin"
+                }
+                return true
+              })}>
                 {(item) => (
                   <SidebarMenuItem>
                     <SidebarMenuButton as={Link} href={item.url}>
@@ -80,7 +87,7 @@ function FooterSidebar(){
           <DropdownMenu open={open()} onOpenChange={setOpen}>
             <DropdownMenuTrigger class="w-full flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0">  
                 <User /> Username
-                {open() ? <ChevronUp class="ml-auto" /> : <ChevronDown class="ml-auto" />}
+                {open() ? <ChevronDown class="ml-auto" /> : <ChevronUp class="ml-auto" />}
             </DropdownMenuTrigger>
             <DropdownMenuContent class="w-56">
               <DropdownMenuItem>

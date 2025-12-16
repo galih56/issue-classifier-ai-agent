@@ -15,6 +15,7 @@ const CollectionSchema = z
     name: z.string(),
     description: z.string().nullable(),
     createdAt: z.string(),
+    creatorId: z.string().optional().nullable(),
   })
   .openapi("Collection");
 
@@ -27,6 +28,7 @@ const CategorySchema = z
     parentId: z.string().nullable(),
     orderIndex: z.number().nullable(),
     createdAt: z.string(),
+    creatorId: z.string().optional().nullable(),
   })
   .openapi("Category");
 
@@ -490,10 +492,10 @@ const deleteCategoryRoute = createRoute({
 // ============================================
 
 export function registerCategoryRoutes(app: OpenAPIHono) {
-  // Apply JWT middleware and admin scope requirement
+  // Apply JWT middleware
   console.log("Registering category routes");
-  app.use("/collections/*", jwtMiddleware, requireScope("admin"));
-  app.use("/categories/*", jwtMiddleware, requireScope("admin"));
+  app.use("/collections/*", jwtMiddleware);
+  app.use("/categories/*", jwtMiddleware);
 
   // Collection routes
   app.openapi(listCollectionsRoute, async (c) => {
@@ -501,8 +503,12 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
     return c.json(
       {
         collections: collections.map((col) => ({
-          ...col,
+          id: col.id,
+          workspaceId: col.workspaceId,
+          name: col.name,
+          description: col.description,
           createdAt: col.createdAt.toISOString(),
+          creatorId: col.creatorId,
         })),
         total: collections.length,
       },
@@ -520,8 +526,12 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
     return c.json(
       {
-        ...collection,
+        id: collection.id,
+        workspaceId: collection.workspaceId,
+        name: collection.name,
+        description: collection.description,
         createdAt: collection.createdAt.toISOString(),
+        creatorId: collection.creatorId,
       },
       200,
     );
@@ -529,13 +539,21 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
   app.openapi(createCollectionRoute, async (c) => {
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string } | undefined;
 
     try {
-      const collection = await CategoryService.createCollection(body);
+      const collection = await CategoryService.createCollection({
+        ...body,
+        creatorId: payload?.sub,
+      });
       return c.json(
         {
-          ...collection,
+          id: collection.id,
+          workspaceId: collection.workspaceId,
+          name: collection.name,
+          description: collection.description,
           createdAt: collection.createdAt.toISOString(),
+          creatorId: collection.creatorId,
         },
         201,
       );
@@ -549,8 +567,22 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
   app.openapi(updateCollectionRoute, async (c) => {
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
 
     try {
+      const existing = await CategoryService.getCollectionById(id);
+      if (!existing) {
+        return notFound(c, "Collection not found");
+      }
+
+      // Check ownership or admin scope
+      const isAdmin = payload?.scp?.includes("admin");
+      const isOwner = existing.creatorId === payload?.sub;
+
+      if (!isAdmin && !isOwner) {
+        return c.json({ error: "Forbidden", message: "You generally need to be the creator or admin to modify this." }, 403);
+      }
+
       const collection = await CategoryService.updateCollection(id, body);
 
       if (!collection) {
@@ -561,6 +593,7 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
         {
           ...collection,
           createdAt: collection.createdAt.toISOString(),
+          creatorId: collection.creatorId,
         },
         200,
       );
@@ -573,8 +606,22 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
   app.openapi(deleteCollectionRoute, async (c) => {
     const { id } = c.req.valid("param");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
 
     try {
+      const existing = await CategoryService.getCollectionById(id);
+      if (!existing) {
+        return notFound(c, "Collection not found");
+      }
+
+      // Check ownership or admin scope
+      const isAdmin = payload?.scp?.includes("admin");
+      const isOwner = existing.creatorId === payload?.sub;
+
+      if (!isAdmin && !isOwner) {
+        return c.json({ error: "Forbidden", message: "You generally need to be the creator or admin to delete this." }, 403);
+      }
+
       const deleted = await CategoryService.deleteCollection(id);
 
       if (!deleted) {
@@ -596,8 +643,14 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
     return c.json(
       {
         categories: categories.map((cat) => ({
-          ...cat,
+          id: cat.id,
+          collectionId: cat.collectionId,
+          name: cat.name,
+          description: cat.description,
+          parentId: cat.parentId,
+          orderIndex: cat.orderIndex,
           createdAt: cat.createdAt.toISOString(),
+          creatorId: cat.creatorId,
         })),
         total: categories.length,
       },
@@ -615,8 +668,14 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
     return c.json(
       {
-        ...category,
+        id: category.id,
+        collectionId: category.collectionId,
+        name: category.name,
+        description: category.description,
+        parentId: category.parentId,
+        orderIndex: category.orderIndex,
         createdAt: category.createdAt.toISOString(),
+        creatorId: category.creatorId,
       },
       200,
     );
@@ -624,13 +683,23 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
   app.openapi(createCategoryRoute, async (c) => {
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string } | undefined;
 
     try {
-      const category = await CategoryService.createCategory(body);
+      const category = await CategoryService.createCategory({
+        ...body,
+        creatorId: payload?.sub,
+      });
       return c.json(
         {
-          ...category,
+          id: category.id,
+          collectionId: category.collectionId,
+          name: category.name,
+          description: category.description,
+          parentId: category.parentId,
+          orderIndex: category.orderIndex,
           createdAt: category.createdAt.toISOString(),
+          creatorId: category.creatorId,
         },
         201,
       );
@@ -644,8 +713,22 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
   app.openapi(updateCategoryRoute, async (c) => {
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
 
     try {
+      const existing = await CategoryService.getCategoryById(id);
+      if (!existing) {
+        return notFound(c, "Category not found");
+      }
+
+      // Check ownership or admin scope
+      const isAdmin = payload?.scp?.includes("admin");
+      const isOwner = existing.creatorId === payload?.sub;
+
+      if (!isAdmin && !isOwner) {
+        return c.json({ error: "Forbidden", message: "You generally need to be the creator or admin to modify this." }, 403);
+      }
+
       const category = await CategoryService.updateCategory(id, body);
 
       if (!category) {
@@ -656,6 +739,7 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
         {
           ...category,
           createdAt: category.createdAt.toISOString(),
+          creatorId: category.creatorId,
         },
         200,
       );
@@ -668,8 +752,22 @@ export function registerCategoryRoutes(app: OpenAPIHono) {
 
   app.openapi(deleteCategoryRoute, async (c) => {
     const { id } = c.req.valid("param");
+    const payload = (c as any).get("jwtPayload") as { sub: string; scp?: string[] } | undefined;
 
     try {
+      const existing = await CategoryService.getCategoryById(id);
+      if (!existing) {
+        return notFound(c, "Category not found");
+      }
+
+      // Check ownership or admin scope
+      const isAdmin = payload?.scp?.includes("admin");
+      const isOwner = existing.creatorId === payload?.sub;
+
+      if (!isAdmin && !isOwner) {
+        return c.json({ error: "Forbidden", message: "You generally need to be the creator or admin to delete this." }, 403);
+      }
+
       const deleted = await CategoryService.deleteCategory(id);
 
       if (!deleted) {

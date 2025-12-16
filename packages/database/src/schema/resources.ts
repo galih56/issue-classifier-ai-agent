@@ -16,6 +16,7 @@ export const workspaces = pgTable("workspaces", {
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  creatorId: text("creator_id_id").references(() => users.id),
 });
 
 export const apiKeys = pgTable("api_keys", {
@@ -44,6 +45,7 @@ export const collections = pgTable("collections", {
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  creatorId: text("creator_id_id").references(() => users.id),
 });
 
 export const collectionCategories = pgTable("collection_categories", {
@@ -56,6 +58,7 @@ export const collectionCategories = pgTable("collection_categories", {
   parentId: text("parent_id"), // Self-reference handled in logic or raw SQL if needed
   orderIndex: integer("order_index"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  creatorId: text("creator_id_id").references(() => users.id),
 });
 
 // ============================================
@@ -118,7 +121,7 @@ export const classifications = pgTable("classifications", {
   inputId: text("input_id").references(() => inputs.id),
   categoryId: text("category_id").references(() => collectionCategories.id),
   confidence: real("confidence"),
-  explanation: text("explanation"),
+  explaination: text("explaination"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
